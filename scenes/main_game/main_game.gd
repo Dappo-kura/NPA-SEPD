@@ -247,7 +247,6 @@ func _rotate_active() -> void:
 # ─── リセット ────────────────────────────────────────────────
 func _on_reset_pressed() -> void:
 	AudioManager.play_se("enter")
-	jump_scare.trigger()
 	# carried_items を使うことで同一リソースの複数コピーを正しく復元する
 	var placed := GameManager.carried_items.duplicate()
 	grid_box.clear_all_items()
