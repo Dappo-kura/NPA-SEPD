@@ -27,17 +27,11 @@ signal item_clicked(item: ItemData, shape: Array[Vector2i])
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
-	if item_data:
-		current_shape = item_data.shape.duplicate()
-		_recalculate_size()
 
 
 func setup(data: ItemData, ghost: bool = false) -> void:
-	item_data = data
-	current_shape.assign(data.shape)
 	is_ghost = ghost
-	_recalculate_size()
-	queue_redraw()
+	item_data = data  # セッターが current_shape の代入と redraw を処理する
 
 
 func set_shape(shape: Array[Vector2i]) -> void:
