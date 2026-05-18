@@ -118,3 +118,20 @@ z_index = 20
 visible = false
 
 [node name="JumpScare" parent="." instance=ExtResource("7_jumpscare")]
+
+[node name="HintLabel" type="Label" parent="."]
+layout_mode = 1
+anchor_left = 0.05
+anchor_top = 0.6
+anchor_right = 0.95
+anchor_bottom = 0.75
+z_index = 30
+visible = false
+theme_override_colors/font_color = Color(1, 0.95, 0.2, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 44
+text = "既に封印できる状態です\n封印ボタンを押してください"
+horizontal_alignment = 1
+autowrap_mode = 3
+mouse_filter = 2

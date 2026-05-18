@@ -10,7 +10,10 @@ const BORDER_WIDTH: float = 1.5
 @export var item_data: ItemData = null:
 	set(v):
 		item_data = v
-		current_shape = v.shape.duplicate() if v else []
+		if v:
+			current_shape.assign(v.shape)
+		else:
+			current_shape.clear()
 		_recalculate_size()
 		queue_redraw()
 
@@ -31,7 +34,7 @@ func _ready() -> void:
 
 func setup(data: ItemData, ghost: bool = false) -> void:
 	item_data = data
-	current_shape = data.shape.duplicate()
+	current_shape.assign(data.shape)
 	is_ghost = ghost
 	_recalculate_size()
 	queue_redraw()

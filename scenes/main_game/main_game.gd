@@ -10,6 +10,7 @@ extends Control
 @onready var drag_ghost: ItemVisual = $DragGhost
 @onready var nightmare_event: NightmareEvent = $NightmareEvent
 @onready var jump_scare: JumpScare = $JumpScare
+@onready var hint_label: Label = $HintLabel
 
 # ─── 状態機械 ─────────────────────────────────────────────────
 enum State { IDLE, DRAGGING, CLICK_TO_PLACE, SEALED }
@@ -245,7 +246,21 @@ func _rotate_active() -> void:
 
 
 # ─── リセット ────────────────────────────────────────────────
+func _show_hint(msg: String) -> void:
+	hint_label.text = msg
+	hint_label.modulate.a = 1.0
+	hint_label.visible = true
+	var tween := create_tween()
+	tween.tween_interval(2.0)
+	tween.tween_property(hint_label, "modulate:a", 0.0, 0.4)
+	tween.tween_callback(hint_label.hide)
+
+
 func _on_reset_pressed() -> void:
+	# 全ピース配置済みなら封印を促す
+	if GameManager.unplaced_items.is_empty() and _active_item == null:
+		_show_hint("既に封印できる状態です\n封印ボタンを押してください")
+		return
 	AudioManager.play_se("enter")
 	# carried_items を使うことで同一リソースの複数コピーを正しく復元する
 	var placed := GameManager.carried_items.duplicate()
