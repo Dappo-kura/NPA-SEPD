@@ -261,18 +261,28 @@ func _on_reset_pressed() -> void:
 	if GameManager.unplaced_items.is_empty() and _active_item == null:
 		_show_hint("既に封印できる状態です\n封印ボタンを押してください")
 		return
+
 	AudioManager.play_se("enter")
-	# carried_items を使うことで同一リソースの複数コピーを正しく復元する
-	var placed := GameManager.carried_items.duplicate()
+
+	# 手持ちアイテムを破棄
+	_active_item = null
+	_active_shape = []
+	drag_ghost.visible = false
+	grid_box.clear_preview()
+
+	# グリッドをクリア
 	grid_box.clear_all_items()
 	GameManager.carried_items.clear()
 
-	for item in placed:
-		GameManager.unplaced_items.append(item)
-		item_tray.restore_item(item)
+	# ステージの初期アイテムからトレイを再構築（追跡ではなくソースから直接復元）
+	GameManager.unplaced_items.clear()
+	var stage := GameManager.active_stage
+	if stage != null:
+		for item in stage.available_items:
+			GameManager.unplaced_items.append(item)
+	item_tray.populate(GameManager.unplaced_items)
 
-	if _active_item != null:
-		_restore_to_tray()
+	_set_state(State.IDLE)
 
 
 # ─── 封印（Seal） ────────────────────────────────────────────
