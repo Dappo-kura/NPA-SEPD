@@ -16,6 +16,8 @@ extends Control
 enum State { IDLE, DRAGGING, CLICK_TO_PLACE, SEALED }
 var _state: State = State.IDLE
 
+var _game_just_cleared := false
+
 # DRAGGING / CLICK_TO_PLACE 共通
 var _active_item: ItemData = null
 var _active_shape: Array[Vector2i] = []
@@ -297,15 +299,24 @@ func _on_seal_pressed() -> void:
 	var damage := GameManager.calculate_total_san_damage(records)
 	GameManager.apply_san_damage(damage)
 
-	# ナイトメアイベントを表示
-	var stage := GameManager.active_stage
-	var nightmare_text := stage.nightmare_text if stage else "暗闇が迫る……"
+	# ナイトメアイベントを表示（ストーリーモードはJSONから取得）
+	var nightmare_text := ""
+	if GameManager.game_mode == GameManager.MODE_STORY:
+		var scenario_data := ScenarioManager.get_day(GameManager.current_day)
+		nightmare_text = scenario_data.get("nightmare_text", "")
+	if nightmare_text.is_empty():
+		var stage := GameManager.active_stage
+		nightmare_text = stage.nightmare_text if stage else "暗闇が迫る……"
 	nightmare_event.show_event(nightmare_text, damage)
 
 
 func _on_nightmare_dismissed() -> void:
 	if GameManager.san_value > 0:
+		_game_just_cleared = false
 		GameManager.advance_day()
+		# ストーリーモードでゲームが続く場合は day_intro へ
+		if not _game_just_cleared and GameManager.game_mode == GameManager.MODE_STORY:
+			get_tree().change_scene_to_file("res://scenes/day_intro/day_intro.tscn")
 
 
 # ─── ゲーム終了 ───────────────────────────────────────────────
@@ -314,6 +325,7 @@ func _on_game_over() -> void:
 
 
 func _on_game_cleared() -> void:
+	_game_just_cleared = true
 	get_tree().change_scene_to_file("res://scenes/ending/ending.tscn")
 
 

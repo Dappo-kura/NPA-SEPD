@@ -18,7 +18,7 @@ func _ready() -> void:
 func _on_story_pressed() -> void:
 	AudioManager.play_se("enter")
 	GameManager.start_story()
-	get_tree().change_scene_to_file("res://scenes/main_game/main_game.tscn")
+	get_tree().change_scene_to_file("res://scenes/day_intro/day_intro.tscn")
 
 
 func _on_infinite_pressed() -> void:

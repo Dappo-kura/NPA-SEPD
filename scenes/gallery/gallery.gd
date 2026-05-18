@@ -1,12 +1,6 @@
 class_name GalleryScreen
 extends Control
 
-# イベント画像の定義: {id, path, title}
-# IDはストーリーモードの対応日と一致させる
-const GALLERY_ENTRIES := [
-	{"id": 1, "path": "res://resources/events/event_001.png", "title": "Day 1 の記憶"},
-]
-
 @onready var grid_container: GridContainer = $ScrollContainer/GridContainer
 @onready var back_button: Button = $BackButton
 @onready var fullscreen_layer: CanvasLayer = $FullscreenLayer
@@ -33,8 +27,13 @@ func _build_locked_placeholder() -> void:
 
 
 func _populate_gallery() -> void:
-	for entry in GALLERY_ENTRIES:
-		var id: int = entry["id"]
+	for day_num in range(1, 22):
+		var data := ScenarioManager.get_day(day_num)
+		if data.is_empty():
+			continue
+		var id: int = data.get("event_cg_id", day_num)
+		var path: String = data.get("event_cg_path", "")
+		var title: String = data.get("gallery_title", "Day %d" % day_num)
 		var is_unlocked: bool = SaveManager.is_gallery_unlocked(id)
 
 		var panel := PanelContainer.new()
@@ -49,16 +48,16 @@ func _populate_gallery() -> void:
 		thumb.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		thumb.expand_mode = TextureRect.EXPAND_FIT_WIDTH_PROPORTIONAL
 
-		if is_unlocked:
-			var tex: Texture2D = load(entry["path"])
+		if is_unlocked and path != "" and ResourceLoader.exists(path):
+			var tex: Texture2D = load(path)
 			thumb.texture = tex
 			# タップで全画面表示
 			thumb.gui_input.connect(
 				func(event: InputEvent) -> void:
 					if event is InputEventScreenTouch and event.pressed:
-						_show_fullscreen(tex, entry["title"])
+						_show_fullscreen(tex, title)
 					elif event is InputEventMouseButton and event.pressed:
-						_show_fullscreen(tex, entry["title"])
+						_show_fullscreen(tex, title)
 			)
 			thumb.mouse_filter = Control.MOUSE_FILTER_STOP
 		else:
@@ -68,7 +67,7 @@ func _populate_gallery() -> void:
 		vbox.add_child(thumb)
 
 		var label := Label.new()
-		label.text = entry["title"] if is_unlocked else "???"
+		label.text = title if is_unlocked else "???"
 		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		label.theme_override_font_sizes = {"font_size": 28}
 		vbox.add_child(label)
