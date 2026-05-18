@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="StageData" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://resources/data_classes/stage_data.gd" id="1_stagedata"]
+[ext_resource type="Resource" path="res://resources/items/rusty_knife.tres" id="2_knife"]
+[ext_resource type="Resource" path="res://resources/items/straw_doll.tres" id="3_straw"]
+[ext_resource type="Resource" path="res://resources/items/cursed_hair.tres" id="4_hair"]
+[ext_resource type="Resource" path="res://resources/items/cursed_mirror.tres" id="5_mirror"]
+
+[resource]
+script = ExtResource("1_stagedata")
+day = 4
+grid_width = 4
+grid_height = 4
+blocked_cells = []
+available_items = [ExtResource("2_knife"), ExtResource("3_straw"), ExtResource("4_hair"), ExtResource("5_mirror")]
+nightmare_text = "保管室を出る直前、背後でかさり、と音がした。振り返っても、棚には何もない。ただ、人形の首が、こちらを向いていた。"
+san_threshold = 0

@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="StageData" load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://resources/data_classes/stage_data.gd" id="1_stagedata"]
+[ext_resource type="Resource" path="res://resources/items/cursed_photo.tres" id="2_photo"]
+[ext_resource type="Resource" path="res://resources/items/prayer_beads.tres" id="3_beads"]
+[ext_resource type="Resource" path="res://resources/items/rusty_knife.tres" id="4_knife"]
+[ext_resource type="Resource" path="res://resources/items/cursed_hair.tres" id="5_hair"]
+[ext_resource type="Resource" path="res://resources/items/strange_coin.tres" id="6_coin"]
+
+[resource]
+script = ExtResource("1_stagedata")
+day = 19
+grid_width = 9
+grid_height = 9
+blocked_cells = [Vector2i(4, 4)]
+available_items = [ExtResource("2_photo"), ExtResource("2_photo"), ExtResource("2_photo"), ExtResource("2_photo"), ExtResource("2_photo"), ExtResource("3_beads"), ExtResource("3_beads"), ExtResource("3_beads"), ExtResource("3_beads"), ExtResource("3_beads"), ExtResource("4_knife"), ExtResource("4_knife"), ExtResource("4_knife"), ExtResource("4_knife"), ExtResource("4_knife"), ExtResource("5_hair"), ExtResource("6_coin")]
+nightmare_text = "写真の中の影が、保管するたびに位置を変える。今日はガラスのすぐ内側に立っていた。こちらを見ていた。"
+san_threshold = 0

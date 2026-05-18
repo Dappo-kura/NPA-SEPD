@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="StageData" load_steps=11 format=3]
+
+[ext_resource type="Script" path="res://resources/data_classes/stage_data.gd" id="1_stagedata"]
+[ext_resource type="Resource" path="res://resources/items/cursed_photo.tres" id="2_photo"]
+[ext_resource type="Resource" path="res://resources/items/prayer_beads.tres" id="3_beads"]
+[ext_resource type="Resource" path="res://resources/items/rusty_knife.tres" id="4_knife"]
+[ext_resource type="Resource" path="res://resources/items/cracked_doll.tres" id="5_doll"]
+[ext_resource type="Resource" path="res://resources/items/straw_doll.tres" id="6_straw"]
+[ext_resource type="Resource" path="res://resources/items/cursed_mirror.tres" id="7_mirror"]
+[ext_resource type="Resource" path="res://resources/items/cursed_hair.tres" id="8_hair"]
+[ext_resource type="Resource" path="res://resources/items/bent_hook.tres" id="9_hook"]
+[ext_resource type="Resource" path="res://resources/items/torn_paper.tres" id="10_paper"]
+
+[resource]
+script = ExtResource("1_stagedata")
+day = 9
+grid_width = 6
+grid_height = 6
+blocked_cells = []
+available_items = [ExtResource("2_photo"), ExtResource("3_beads"), ExtResource("4_knife"), ExtResource("5_doll"), ExtResource("6_straw"), ExtResource("7_mirror"), ExtResource("8_hair"), ExtResource("9_hook"), ExtResource("10_paper")]
+nightmare_text = "コインを保管ケースに入れたはずなのに、翌朝、デスクの上に出ていた。施錠記録を確認すると——私の指紋しか残っていなかった。"
+san_threshold = 0

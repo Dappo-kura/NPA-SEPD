@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="StageData" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://resources/data_classes/stage_data.gd" id="1_stagedata"]
+[ext_resource type="Resource" path="res://resources/items/cursed_photo.tres" id="2_photo"]
+[ext_resource type="Resource" path="res://resources/items/prayer_beads.tres" id="3_beads"]
+[ext_resource type="Resource" path="res://resources/items/rusty_knife.tres" id="4_knife"]
+[ext_resource type="Resource" path="res://resources/items/torn_paper.tres" id="5_paper"]
+
+[resource]
+script = ExtResource("1_stagedata")
+day = 15
+grid_width = 7
+grid_height = 7
+blocked_cells = [Vector2i(3, 3), Vector2i(3, 4)]
+available_items = [ExtResource("2_photo"), ExtResource("2_photo"), ExtResource("2_photo"), ExtResource("3_beads"), ExtResource("3_beads"), ExtResource("3_beads"), ExtResource("4_knife"), ExtResource("4_knife"), ExtResource("4_knife"), ExtResource("5_paper")]
+nightmare_text = "一秒だけ、鏡を見てしまった。自分の顔が映っていた。ただ——笑っていた。私は笑っていなかったのに。"
+san_threshold = 0

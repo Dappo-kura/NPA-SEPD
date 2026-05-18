@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://resources/data_classes/item_data.gd" id="1_itemdata"]
+[ext_resource type="Texture2D" path="res://resources/items/ring.png" id="2_tex"]
+
+[resource]
+script = ExtResource("1_itemdata")
+item_id = "cursed_ring"
+display_name = "呪われた指輪"
+danger = 3
+shape = [Vector2i(0, 0)]
+can_rotate = false
+can_merge = false
+color = Color(0.8, 0.6, 0.8, 1.0)
+tags = ["cursed", "jewelry"]
+texture = ExtResource("2_tex")

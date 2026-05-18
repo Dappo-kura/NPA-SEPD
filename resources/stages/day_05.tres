@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="StageData" load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://resources/data_classes/stage_data.gd" id="1_stagedata"]
+[ext_resource type="Resource" path="res://resources/items/torn_paper.tres" id="2_paper"]
+[ext_resource type="Resource" path="res://resources/items/bent_hook.tres" id="3_hook"]
+[ext_resource type="Resource" path="res://resources/items/rusty_knife.tres" id="4_knife"]
+[ext_resource type="Resource" path="res://resources/items/cracked_doll.tres" id="5_doll"]
+[ext_resource type="Resource" path="res://resources/items/cursed_mirror.tres" id="6_mirror"]
+[ext_resource type="Resource" path="res://resources/items/prayer_beads.tres" id="7_beads"]
+
+[resource]
+script = ExtResource("1_stagedata")
+day = 5
+grid_width = 5
+grid_height = 5
+blocked_cells = []
+available_items = [ExtResource("2_paper"), ExtResource("3_hook"), ExtResource("3_hook"), ExtResource("4_knife"), ExtResource("5_doll"), ExtResource("6_mirror"), ExtResource("7_beads")]
+nightmare_text = "手袋越しでも、紙を触れた指がじわりと熱い。先輩は言っていた。『呪詛は読んだ者に伝染する』。私は読んでしまった。"
+san_threshold = 0

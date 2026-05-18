@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="StageData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://resources/data_classes/stage_data.gd" id="1_stagedata"]
+[ext_resource type="Resource" path="res://resources/items/strange_coin.tres" id="2_coin"]
+[ext_resource type="Resource" path="res://resources/items/bent_hook.tres" id="3_hook"]
+[ext_resource type="Resource" path="res://resources/items/cracked_doll.tres" id="4_doll"]
+
+[resource]
+script = ExtResource("1_stagedata")
+day = 2
+grid_width = 3
+grid_height = 3
+blocked_cells = []
+available_items = [ExtResource("2_coin"), ExtResource("2_coin"), ExtResource("3_hook"), ExtResource("4_doll")]
+nightmare_text = "証拠品を箱に戻す手が、一瞬だけ止まった。コインが——なぜか、別の向きを向いていた。置いた時と、確かに違う。"
+san_threshold = 0

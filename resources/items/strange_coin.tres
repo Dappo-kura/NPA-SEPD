@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://resources/data_classes/item_data.gd" id="1_itemdata"]
+[ext_resource type="Texture2D" path="res://resources/items/coin.png" id="2_tex"]
+
+[resource]
+script = ExtResource("1_itemdata")
+item_id = "strange_coin"
+display_name = "奇妙なコイン"
+danger = 1
+shape = [Vector2i(0, 0)]
+can_rotate = false
+can_merge = false
+color = Color(1.0, 0.843, 0.0, 1.0)
+tags = ["coin", "cursed"]
+texture = ExtResource("2_tex")

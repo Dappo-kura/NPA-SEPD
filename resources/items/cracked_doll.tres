@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://resources/data_classes/item_data.gd" id="1_itemdata"]
+[ext_resource type="Texture2D" path="res://resources/items/doll.png" id="2_tex"]
+
+[resource]
+script = ExtResource("1_itemdata")
+item_id = "cracked_doll"
+display_name = "ひび割れた人形"
+danger = 3
+shape = [Vector2i(0, 0), Vector2i(0, 1), Vector2i(0, 2), Vector2i(1, 2)]
+can_rotate = true
+can_merge = false
+color = Color(0.961, 0.933, 0.824, 1.0)
+tags = ["cursed", "doll"]
+texture = ExtResource("2_tex")

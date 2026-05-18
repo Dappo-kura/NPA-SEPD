@@ -1,0 +1,63 @@
+[gd_scene load_steps=3 format=3 uid="uid://juo1spopcoyi"]
+
+[ext_resource type="Script" uid="uid://dpfax8k8we61n" path="res://scenes/title_screen/title_screen.gd" id="1_titlescr"]
+[ext_resource type="Texture2D" uid="uid://cowo3p3hcpvno" path="res://resources/title.png" id="2_bg"]
+
+[node name="TitleScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_titlescr")
+
+[node name="BackgroundImage" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("2_bg")
+
+[node name="ButtonContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -270.0
+offset_top = -944.0
+offset_right = 270.0
+offset_bottom = -494.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_constants/separation = 20
+alignment = 1
+
+[node name="StoryButton" type="Button" parent="ButtonContainer"]
+custom_minimum_size = Vector2(360, 80)
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "ストーリーモード（α版）"
+
+[node name="InfiniteButton" type="Button" parent="ButtonContainer"]
+custom_minimum_size = Vector2(360, 80)
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "無限パズルモード"
+
+[node name="GalleryButton" type="Button" parent="ButtonContainer"]
+custom_minimum_size = Vector2(360, 80)
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "ギャラリー"
+
+[node name="QuitButton" type="Button" parent="ButtonContainer"]
+custom_minimum_size = Vector2(360, 70)
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "終了"

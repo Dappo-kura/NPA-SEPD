@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://resources/data_classes/item_data.gd" id="1_itemdata"]
+[ext_resource type="Texture2D" path="res://resources/items/5-inchnail.png" id="2_tex"]
+
+[resource]
+script = ExtResource("1_itemdata")
+item_id = "bent_hook"
+display_name = "曲がったフック"
+danger = 2
+shape = [Vector2i(0, 0), Vector2i(1, 0), Vector2i(1, 1)]
+can_rotate = true
+can_merge = false
+color = Color(0.502, 0.502, 0.502, 1.0)
+tags = ["metal", "tool"]
+texture = ExtResource("2_tex")

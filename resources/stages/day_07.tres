@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="StageData" load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://resources/data_classes/stage_data.gd" id="1_stagedata"]
+[ext_resource type="Resource" path="res://resources/items/cursed_photo.tres" id="2_photo"]
+[ext_resource type="Resource" path="res://resources/items/prayer_beads.tres" id="3_beads"]
+[ext_resource type="Resource" path="res://resources/items/straw_doll.tres" id="4_straw"]
+[ext_resource type="Resource" path="res://resources/items/cursed_mirror.tres" id="5_mirror"]
+[ext_resource type="Resource" path="res://resources/items/bent_hook.tres" id="6_hook"]
+[ext_resource type="Resource" path="res://resources/items/torn_paper.tres" id="7_paper"]
+
+[resource]
+script = ExtResource("1_stagedata")
+day = 7
+grid_width = 5
+grid_height = 5
+blocked_cells = [Vector2i(2, 2)]
+available_items = [ExtResource("2_photo"), ExtResource("3_beads"), ExtResource("4_straw"), ExtResource("5_mirror"), ExtResource("6_hook"), ExtResource("7_paper")]
+nightmare_text = "ナイフと紙。別の事件の証拠品なのに、なぜかいつも同じ棚の端に寄り集まっている。整理するたびに、また寄り集まる。"
+san_threshold = 0

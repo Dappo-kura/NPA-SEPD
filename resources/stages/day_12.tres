@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="StageData" load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://resources/data_classes/stage_data.gd" id="1_stagedata"]
+[ext_resource type="Resource" path="res://resources/items/cursed_photo.tres" id="2_photo"]
+[ext_resource type="Resource" path="res://resources/items/prayer_beads.tres" id="3_beads"]
+[ext_resource type="Resource" path="res://resources/items/rusty_knife.tres" id="4_knife"]
+[ext_resource type="Resource" path="res://resources/items/straw_doll.tres" id="5_straw"]
+[ext_resource type="Resource" path="res://resources/items/cursed_mirror.tres" id="6_mirror"]
+[ext_resource type="Resource" path="res://resources/items/cursed_hair.tres" id="7_hair"]
+[ext_resource type="Resource" path="res://resources/items/torn_paper.tres" id="8_paper"]
+
+[resource]
+script = ExtResource("1_stagedata")
+day = 12
+grid_width = 6
+grid_height = 6
+blocked_cells = [Vector2i(5, 0)]
+available_items = [ExtResource("2_photo"), ExtResource("2_photo"), ExtResource("3_beads"), ExtResource("4_knife"), ExtResource("5_straw"), ExtResource("6_mirror"), ExtResource("7_hair"), ExtResource("8_paper")]
+nightmare_text = "藁人形。被疑者の自宅の床下から発見。ピンが一本、心臓の位置に刺さっていた。被害者の死因は——急性心不全だった。"
+san_threshold = 0

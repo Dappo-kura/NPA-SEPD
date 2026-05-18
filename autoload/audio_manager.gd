@@ -1,0 +1,38 @@
+extends Node
+
+var _bgm_player: AudioStreamPlayer
+var _se_player: AudioStreamPlayer
+
+var _se_streams: Dictionary = {}
+
+
+func _ready() -> void:
+	_bgm_player = AudioStreamPlayer.new()
+	add_child(_bgm_player)
+
+	_se_player = AudioStreamPlayer.new()
+	add_child(_se_player)
+
+	_se_streams["puzzle"] = load("res://resources/sound/puzzle_se.mp3")
+	_se_streams["enter"]  = load("res://resources/sound/enter.mp3")
+	_se_streams["seal"]   = load("res://resources/sound/seal.mp3")
+
+
+func play_bgm() -> void:
+	if _bgm_player.playing:
+		return
+	var stream := load("res://resources/sound/npasepd_bgm.mp3") as AudioStreamMP3
+	stream.loop = true
+	_bgm_player.stream = stream
+	_bgm_player.play()
+
+
+func stop_bgm() -> void:
+	_bgm_player.stop()
+
+
+func play_se(key: String) -> void:
+	if not _se_streams.has(key):
+		return
+	_se_player.stream = _se_streams[key]
+	_se_player.play()

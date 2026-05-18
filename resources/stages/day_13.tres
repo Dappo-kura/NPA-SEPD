@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="StageData" load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://resources/data_classes/stage_data.gd" id="1_stagedata"]
+[ext_resource type="Resource" path="res://resources/items/cursed_photo.tres" id="2_photo"]
+[ext_resource type="Resource" path="res://resources/items/prayer_beads.tres" id="3_beads"]
+[ext_resource type="Resource" path="res://resources/items/rusty_knife.tres" id="4_knife"]
+[ext_resource type="Resource" path="res://resources/items/straw_doll.tres" id="5_straw"]
+[ext_resource type="Resource" path="res://resources/items/cursed_mirror.tres" id="6_mirror"]
+[ext_resource type="Resource" path="res://resources/items/torn_paper.tres" id="7_paper"]
+[ext_resource type="Resource" path="res://resources/items/strange_coin.tres" id="8_coin"]
+
+[resource]
+script = ExtResource("1_stagedata")
+day = 13
+grid_width = 6
+grid_height = 6
+blocked_cells = [Vector2i(0, 5), Vector2i(5, 0)]
+available_items = [ExtResource("2_photo"), ExtResource("2_photo"), ExtResource("3_beads"), ExtResource("4_knife"), ExtResource("5_straw"), ExtResource("6_mirror"), ExtResource("7_paper"), ExtResource("7_paper"), ExtResource("8_coin")]
+nightmare_text = "保管中に、フックの向きが変わる。必ず、藁人形の方を向く。何度直しても、朝には向いている。記録しろと先輩に言われた。慣れろ、と。"
+san_threshold = 0

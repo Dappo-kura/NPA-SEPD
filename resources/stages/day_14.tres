@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="StageData" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://resources/data_classes/stage_data.gd" id="1_stagedata"]
+[ext_resource type="Resource" path="res://resources/items/cursed_photo.tres" id="2_photo"]
+[ext_resource type="Resource" path="res://resources/items/prayer_beads.tres" id="3_beads"]
+[ext_resource type="Resource" path="res://resources/items/rusty_knife.tres" id="4_knife"]
+[ext_resource type="Resource" path="res://resources/items/torn_paper.tres" id="5_paper"]
+
+[resource]
+script = ExtResource("1_stagedata")
+day = 14
+grid_width = 7
+grid_height = 7
+blocked_cells = []
+available_items = [ExtResource("2_photo"), ExtResource("2_photo"), ExtResource("2_photo"), ExtResource("3_beads"), ExtResource("3_beads"), ExtResource("3_beads"), ExtResource("4_knife"), ExtResource("4_knife"), ExtResource("4_knife"), ExtResource("5_paper"), ExtResource("5_paper")]
+nightmare_text = "鏡面を布で覆うのは規則だ。しかし誰かが——毎朝、布をずらしている。カメラには誰も映っていない。"
+san_threshold = 0

@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="StageData" load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://resources/data_classes/stage_data.gd" id="1_stagedata"]
+[ext_resource type="Resource" path="res://resources/items/cursed_photo.tres" id="2_photo"]
+[ext_resource type="Resource" path="res://resources/items/prayer_beads.tres" id="3_beads"]
+[ext_resource type="Resource" path="res://resources/items/rusty_knife.tres" id="4_knife"]
+[ext_resource type="Resource" path="res://resources/items/cracked_doll.tres" id="5_doll"]
+[ext_resource type="Resource" path="res://resources/items/bent_hook.tres" id="6_hook"]
+[ext_resource type="Resource" path="res://resources/items/strange_coin.tres" id="7_coin"]
+[ext_resource type="Resource" path="res://resources/items/torn_paper.tres" id="8_paper"]
+
+[resource]
+script = ExtResource("1_stagedata")
+day = 11
+grid_width = 6
+grid_height = 6
+blocked_cells = []
+available_items = [ExtResource("2_photo"), ExtResource("2_photo"), ExtResource("3_beads"), ExtResource("3_beads"), ExtResource("4_knife"), ExtResource("5_doll"), ExtResource("6_hook"), ExtResource("7_coin"), ExtResource("8_paper")]
+nightmare_text = "フックが発見された現場は、一見して自殺と判断された。だが死者は利き手ではない方の手を使っていた。何かに手を取られるように。"
+san_threshold = 0

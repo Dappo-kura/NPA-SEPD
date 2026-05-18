@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://resources/data_classes/item_data.gd" id="1_itemdata"]
+[ext_resource type="Texture2D" path="res://resources/items/picture.png" id="2_tex"]
+
+[resource]
+script = ExtResource("1_itemdata")
+item_id = "cursed_photo"
+display_name = "呪われた写真"
+danger = 2
+shape = [Vector2i(0, 0), Vector2i(1, 0), Vector2i(0, 1), Vector2i(1, 1), Vector2i(2, 1), Vector2i(2, 0)]
+can_rotate = true
+can_merge = false
+color = Color(0.9, 0.9, 0.85, 1.0)
+tags = ["cursed", "photo"]
+texture = ExtResource("2_tex")

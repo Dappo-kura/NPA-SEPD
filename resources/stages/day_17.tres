@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="StageData" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://resources/data_classes/stage_data.gd" id="1_stagedata"]
+[ext_resource type="Resource" path="res://resources/items/cursed_photo.tres" id="2_photo"]
+[ext_resource type="Resource" path="res://resources/items/prayer_beads.tres" id="3_beads"]
+[ext_resource type="Resource" path="res://resources/items/rusty_knife.tres" id="4_knife"]
+[ext_resource type="Resource" path="res://resources/items/cursed_mirror.tres" id="5_mirror"]
+
+[resource]
+script = ExtResource("1_stagedata")
+day = 17
+grid_width = 8
+grid_height = 8
+blocked_cells = [Vector2i(0, 7), Vector2i(7, 0), Vector2i(3, 4), Vector2i(4, 3)]
+available_items = [ExtResource("2_photo"), ExtResource("2_photo"), ExtResource("2_photo"), ExtResource("2_photo"), ExtResource("3_beads"), ExtResource("3_beads"), ExtResource("3_beads"), ExtResource("3_beads"), ExtResource("4_knife"), ExtResource("4_knife"), ExtResource("4_knife"), ExtResource("5_mirror")]
+nightmare_text = "夜中に目が覚めると、自分の手が念珠を握る動作を繰り返していた。夢遊病の記録はない。ただその夜、藁人形の針が一本、増えていた。"
+san_threshold = 0
