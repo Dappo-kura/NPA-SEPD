@@ -138,6 +138,9 @@ func _handle_input_click_to_place(event: InputEvent) -> void:
 			var in_grid := Rect2(Vector2.ZERO, grid_box.size).has_point(grid_local)
 			if in_grid:
 				_try_place_on_grid(grid_local)
+			elif _active_item != null and _active_item.can_rotate:
+				# グリッド外タップ → 回転（モバイルでもRキーなしで操作可能）
+				_rotate_active()
 			else:
 				_restore_to_tray()
 
