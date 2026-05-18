@@ -6,6 +6,7 @@ extends Control
 @onready var item_tray: ItemTray = $VBoxContainer/ItemTray
 @onready var grid_box: GridBox = $VBoxContainer/GridArea/GridBox
 @onready var reset_button: Button = $VBoxContainer/BottomArea/BottomBar/ResetButton
+@onready var rotate_button: Button = $VBoxContainer/BottomArea/BottomBar/RotateButton
 @onready var seal_button: Button = $VBoxContainer/BottomArea/BottomBar/SealButton
 @onready var drag_ghost: ItemVisual = $DragGhost
 @onready var nightmare_event: NightmareEvent = $NightmareEvent
@@ -35,6 +36,7 @@ func _ready() -> void:
 	GameManager.day_changed.connect(_on_day_changed)
 
 	reset_button.pressed.connect(_on_reset_pressed)
+	rotate_button.pressed.connect(_on_rotate_pressed)
 	seal_button.pressed.connect(_on_seal_pressed)
 
 	item_tray.item_drag_started.connect(_on_tray_drag_started)
@@ -138,9 +140,6 @@ func _handle_input_click_to_place(event: InputEvent) -> void:
 			var in_grid := Rect2(Vector2.ZERO, grid_box.size).has_point(grid_local)
 			if in_grid:
 				_try_place_on_grid(grid_local)
-			elif _active_item != null and _active_item.can_rotate:
-				# グリッド外タップ → 回転（モバイルでもRキーなしで操作可能）
-				_rotate_active()
 			else:
 				_restore_to_tray()
 
@@ -328,6 +327,17 @@ func _on_game_cleared() -> void:
 	get_tree().change_scene_to_file("res://scenes/ending/ending.tscn")
 
 
+# ─── 回転ボタン ───────────────────────────────────────────────
+func _on_rotate_pressed() -> void:
+	_rotate_active()
+
+
+func _update_rotate_button() -> void:
+	var can := _active_item != null and _active_item.can_rotate
+	rotate_button.disabled = not can
+
+
 # ─── 状態変更 ─────────────────────────────────────────────────
 func _set_state(new_state: State) -> void:
 	_state = new_state
+	_update_rotate_button()

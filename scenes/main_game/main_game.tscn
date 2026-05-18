@@ -87,6 +87,15 @@ size_flags_vertical = 3
 theme_override_font_sizes/font_size = 44
 text = "リセット"
 
+[node name="RotateButton" type="Button" parent="VBoxContainer/BottomArea/BottomBar"]
+custom_minimum_size = Vector2(0, 130)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_font_sizes/font_size = 44
+text = "回転"
+disabled = true
+
 [node name="SealButton" type="Button" parent="VBoxContainer/BottomArea/BottomBar"]
 custom_minimum_size = Vector2(0, 130)
 layout_mode = 2
