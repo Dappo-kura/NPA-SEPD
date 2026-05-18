@@ -248,6 +248,16 @@ func _draw_placed_items() -> void:
 		var bb_w: int = max_col - min_col + 1
 		var bb_h: int = max_row - min_row + 1
 
+		if item.texture:
+			# テクスチャをバウンディングボックス全体に1枚描画（セルでマスクしない）
+			var full_rect := Rect2(
+				float(min_col * cell_size),
+				float(min_row * cell_size),
+				float(bb_w * cell_size),
+				float(bb_h * cell_size)
+			)
+			draw_texture_rect(item.texture, full_rect, false)
+
 		for world_cell in cells:
 			var rect := Rect2(
 				world_cell.x * cell_size + 1,
@@ -256,21 +266,9 @@ func _draw_placed_items() -> void:
 				cell_size - 2
 			)
 
-			if item.texture:
-				var tex_size := item.texture.get_size()
-				var local_col: int = world_cell.x - min_col
-				var local_row: int = world_cell.y - min_row
-				var src_rect := Rect2(
-					float(local_col) / float(bb_w) * tex_size.x,
-					float(local_row) / float(bb_h) * tex_size.y,
-					tex_size.x / float(bb_w),
-					tex_size.y / float(bb_h)
-				)
-				draw_texture_rect_region(item.texture, rect, src_rect)
-				draw_rect(rect, border_color, false, 1.5)
-			else:
+			if not item.texture:
 				draw_rect(rect, fill_color)
-				draw_rect(rect, border_color, false, 1.5)
+			draw_rect(rect, border_color, false, 1.5)
 
 			# danger dot（左上）
 			for d in range(item.danger):

@@ -64,8 +64,10 @@ func _draw() -> void:
 
 	if item_data.texture:
 		var bb := item_data.get_bounding_box(current_shape)
-		var tex_size := item_data.texture.get_size()
 		var tex_alpha := 0.55 if is_ghost else 1.0
+		# テクスチャをバウンディングボックス全体に1枚描画（セルでマスクしない）
+		var full_rect := Rect2(Vector2.ZERO, Vector2(bb.x * CELL_SIZE, bb.y * CELL_SIZE))
+		draw_texture_rect(item_data.texture, full_rect, false, Color(1.0, 1.0, 1.0, tex_alpha))
 		for cell in current_shape:
 			var dest_rect := Rect2(
 				cell.x * CELL_SIZE + 1,
@@ -73,14 +75,6 @@ func _draw() -> void:
 				CELL_SIZE - 2,
 				CELL_SIZE - 2
 			)
-			var src_rect := Rect2(
-				float(cell.x) / float(bb.x) * tex_size.x,
-				float(cell.y) / float(bb.y) * tex_size.y,
-				tex_size.x / float(bb.x),
-				tex_size.y / float(bb.y)
-			)
-			draw_texture_rect_region(item_data.texture, dest_rect, src_rect,
-					Color(1.0, 1.0, 1.0, tex_alpha))
 			draw_rect(dest_rect, border_color, false, BORDER_WIDTH)
 	else:
 		for cell in current_shape:
