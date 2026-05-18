@@ -53,6 +53,16 @@ func restore_item(item: ItemData) -> void:
 	_add_item_visual(item)
 
 
+## トレイ内のピースをその場で回転する
+func rotate_item(item: ItemData) -> void:
+	for entry in _item_entries:
+		if entry["item"] == item:
+			var iv := entry["visual"] as ItemVisual
+			var new_shape := item.get_rotated_shape(iv.current_shape)
+			iv.set_shape(new_shape)
+			return
+
+
 func _on_item_drag_started(item: ItemData, shape: Array[Vector2i], screen_pos: Vector2) -> void:
 	item_drag_started.emit(item, shape, screen_pos)
 

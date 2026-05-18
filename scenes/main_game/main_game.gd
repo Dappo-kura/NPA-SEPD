@@ -174,15 +174,20 @@ func _update_grid_preview_from_mouse() -> void:
 
 # ─── クリック配置 ────────────────────────────────────────────
 func _on_tray_click_selected(item: ItemData, shape: Array[Vector2i]) -> void:
+	# 回転できるピースはタップでトレイ内回転（テトリス方式）
+	if item.can_rotate:
+		item_tray.rotate_item(item)
+		return
+
+	# 回転できないピースのみタップでクリック配置モード
 	if _state == State.CLICK_TO_PLACE and _active_item != null:
-		# 前に持っていたアイテムをトレイに戻す
 		item_tray.restore_item(_active_item)
 		GameManager.unplaced_items.append(_active_item)
 
 	_active_item = item
 	_active_shape = shape
 	item_tray.remove_item(item)
-	GameManager.unplaced_items.erase(item)  # 手に取った瞬間に除外
+	GameManager.unplaced_items.erase(item)
 	_set_state(State.CLICK_TO_PLACE)
 
 
