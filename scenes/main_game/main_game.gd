@@ -127,10 +127,6 @@ func _handle_input_dragging(event: InputEvent) -> void:
 			else:
 				_restore_to_tray()
 
-	if event is InputEventKey and event.pressed:
-		if event.keycode == KEY_R or event.physical_keycode == KEY_R:
-			_rotate_active()
-
 
 func _handle_input_click_to_place(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
@@ -142,15 +138,6 @@ func _handle_input_click_to_place(event: InputEvent) -> void:
 				_try_place_on_grid(grid_local)
 			else:
 				_restore_to_tray()
-
-		if mb.button_index == MOUSE_BUTTON_RIGHT and mb.pressed:
-			_restore_to_tray()
-
-	if event is InputEventKey and event.pressed:
-		if event.keycode == KEY_R or event.physical_keycode == KEY_R:
-			_rotate_active()
-		elif event.keycode == KEY_ESCAPE:
-			_restore_to_tray()
 
 
 # ─── ドラッグ ─────────────────────────────────────────────────
