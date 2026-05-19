@@ -1,0 +1,110 @@
+[gd_scene load_steps=2 format=3 uid="uid://tuxed1kahffs"]
+
+[ext_resource type="Script" uid="uid://dh5dhxmbs3wue" path="res://scenes/case_file/case_file.gd" id="1_script"]
+
+[node name="CaseFile" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="BG" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 1)
+
+[node name="ScrollContainer" type="ScrollContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 436.0
+grow_horizontal = 2
+grow_vertical = 2
+horizontal_scroll_mode = 0
+
+[node name="OuterMargin" type="MarginContainer" parent="ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_left = 60
+theme_override_constants/margin_top = 60
+theme_override_constants/margin_right = 60
+theme_override_constants/margin_bottom = 60
+
+[node name="Content" type="VBoxContainer" parent="ScrollContainer/OuterMargin"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 20
+
+[node name="TitleLabel" type="Label" parent="ScrollContainer/OuterMargin/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.1, 0.1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 56
+text = "【事件資料】"
+
+[node name="TitleSep" type="ColorRect" parent="ScrollContainer/OuterMargin/Content"]
+custom_minimum_size = Vector2(0, 2)
+layout_mode = 2
+size_flags_horizontal = 3
+color = Color(0.6, 0.1, 0.1, 0.8)
+
+[node name="CaseIDLabel" type="Label" parent="ScrollContainer/OuterMargin/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_font_sizes/font_size = 44
+text = "管理番号："
+
+[node name="EvidenceLabel" type="Label" parent="ScrollContainer/OuterMargin/Content"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_font_sizes/font_size = 44
+text = "搬入物："
+autowrap_mode = 3
+
+[node name="Spacer1" type="Control" parent="ScrollContainer/OuterMargin/Content"]
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+
+[node name="SectionOverview" type="Label" parent="ScrollContainer/OuterMargin/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75, 0.65, 0.5, 1)
+theme_override_font_sizes/font_size = 44
+text = "▌ 概要"
+
+[node name="OverviewText" type="Label" parent="ScrollContainer/OuterMargin/Content"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_font_sizes/font_size = 44
+autowrap_mode = 3
+
+[node name="Spacer2" type="Control" parent="ScrollContainer/OuterMargin/Content"]
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+
+[node name="SectionNote" type="Label" parent="ScrollContainer/OuterMargin/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75, 0.65, 0.5, 1)
+theme_override_font_sizes/font_size = 44
+text = "▌ 保全注意"
+
+[node name="NoteText" type="Label" parent="ScrollContainer/OuterMargin/Content"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_font_sizes/font_size = 44
+autowrap_mode = 3
+
+[node name="Spacer3" type="Control" parent="ScrollContainer/OuterMargin/Content"]
+custom_minimum_size = Vector2(0, 80)
+layout_mode = 2

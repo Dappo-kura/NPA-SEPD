@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://gavmefwqsyku"]
+[gd_scene load_steps=9 format=3 uid="uid://gavmefwqsyku"]
 
 [ext_resource type="Script" uid="uid://bht2v08uvua63" path="res://scenes/main_game/main_game.gd" id="1_maingame"]
 [ext_resource type="PackedScene" path="res://scenes/main_game/hud/hud.tscn" id="2_hud"]
@@ -6,7 +6,8 @@
 [ext_resource type="PackedScene" path="res://scenes/main_game/grid_box/grid_box.tscn" id="4_gridbox"]
 [ext_resource type="PackedScene" path="res://scenes/main_game/item_visual/item_visual.tscn" id="5_itemvis"]
 [ext_resource type="PackedScene" path="res://scenes/nightmare_event/nightmare_event.tscn" id="6_nightmare"]
-[ext_resource type="PackedScene" path="res://scenes/jump_scare/jump_scare.tscn" id="7_jumpscare"]
+[ext_resource type="PackedScene" uid="uid://jumpscare001" path="res://scenes/jump_scare/jump_scare.tscn" id="7_jumpscare"]
+[ext_resource type="Texture2D" uid="uid://bpg80slnnx6r" path="res://resources/puzzle_bg.png" id="8_puzzlebg"]
 
 [node name="MainGame" type="Control"]
 layout_mode = 3
@@ -26,6 +27,18 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 color = Color(0.05, 0.05, 0.08, 1)
+
+[node name="BackgroundImage" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("8_puzzlebg")
+expand_mode = 1
+stretch_mode = 6
 
 [node name="VBoxContainer" type="VBoxContainer" parent="."]
 layout_mode = 1
@@ -48,39 +61,41 @@ theme_override_constants/margin_bottom = 8
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="TopSpacer" type="Control" parent="VBoxContainer"]
-layout_mode = 2
-size_flags_vertical = 3
-
 [node name="GridArea" type="MarginContainer" parent="VBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/margin_left = 0
-theme_override_constants/margin_top = 20
-theme_override_constants/margin_right = 0
-theme_override_constants/margin_bottom = 16
+size_flags_vertical = 4
+theme_override_constants/margin_left = 40
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 40
+theme_override_constants/margin_bottom = 10
 
 [node name="GridBox" parent="VBoxContainer/GridArea" instance=ExtResource("4_gridbox")]
 layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 0
+size_flags_horizontal = 8
+size_flags_vertical = 4
+
+[node name="ItemTray" parent="VBoxContainer" instance=ExtResource("3_itemtray")]
+layout_mode = 2
+size_flags_vertical = 3
 
 [node name="BottomArea" type="MarginContainer" parent="VBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/margin_left = 60
-theme_override_constants/margin_top = 0
-theme_override_constants/margin_right = 60
-theme_override_constants/margin_bottom = 8
+size_flags_vertical = 4
+theme_override_constants/margin_left = 40
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 40
+theme_override_constants/margin_bottom = 40
 
 [node name="BottomBar" type="HBoxContainer" parent="VBoxContainer/BottomArea"]
-custom_minimum_size = Vector2(0, 150)
+custom_minimum_size = Vector2(0, 140)
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 16
+theme_override_constants/separation = 20
 
 [node name="ResetButton" type="Button" parent="VBoxContainer/BottomArea/BottomBar"]
-custom_minimum_size = Vector2(0, 130)
+custom_minimum_size = Vector2(0, 120)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -88,50 +103,41 @@ theme_override_font_sizes/font_size = 44
 text = "リセット"
 
 [node name="SealButton" type="Button" parent="VBoxContainer/BottomArea/BottomBar"]
-custom_minimum_size = Vector2(0, 130)
+custom_minimum_size = Vector2(0, 120)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_font_sizes/font_size = 44
 text = "封印する"
 
-[node name="ItemTray" parent="VBoxContainer" instance=ExtResource("3_itemtray")]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="BottomSpacer" type="Control" parent="VBoxContainer"]
-layout_mode = 2
-size_flags_vertical = 3
-
 [node name="DragGhost" parent="." instance=ExtResource("5_itemvis")]
 visible = false
 z_index = 10
 layout_mode = 1
+anchors_preset = 0
 mouse_filter = 2
 
 [node name="NightmareEvent" parent="." instance=ExtResource("6_nightmare")]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
 z_index = 20
-visible = false
+grow_horizontal = 2
+grow_vertical = 2
 
 [node name="JumpScare" parent="." instance=ExtResource("7_jumpscare")]
 
 [node name="HintLabel" type="Label" parent="."]
+visible = false
+z_index = 30
 layout_mode = 1
+anchors_preset = -1
 anchor_left = 0.05
 anchor_top = 0.6
 anchor_right = 0.95
 anchor_bottom = 0.75
-z_index = 30
-visible = false
 theme_override_colors/font_color = Color(1, 0.95, 0.2, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 6
 theme_override_font_sizes/font_size = 44
-text = "既に封印できる状態です\n封印ボタンを押してください"
+text = "既に封印できる状態です
+封印ボタンを押してください"
 horizontal_alignment = 1
 autowrap_mode = 3
-mouse_filter = 2

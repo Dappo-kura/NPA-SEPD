@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" path="res://scenes/nightmare_event/nightmare_event.gd" id="1_nightmare"]
 
-[node name="NightmareEvent" type="Panel"]
+[node name="NightmareEvent" type="Control"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -10,34 +10,163 @@ anchor_bottom = 1.0
 script = ExtResource("1_nightmare")
 visible = false
 
-[node name="VBoxContainer" type="VBoxContainer" parent="."]
+[node name="Background" type="ColorRect" parent="."]
 layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -250.0
-offset_top = -150.0
-offset_right = 250.0
-offset_bottom = 150.0
-alignment = 1
-theme_override_constants/separation = 16
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.04, 0.04, 0.06, 1)
 
-[node name="TextLabel" type="RichTextLabel" parent="VBoxContainer"]
-layout_mode = 2
-custom_minimum_size = Vector2(0, 120)
-bbcode_enabled = true
+[node name="BackgroundImage" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 6
+
+[node name="DarkOverlay" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 0.22)
+
+[node name="BottomBlack" type="ColorRect" parent="."]
+layout_mode = 1
+anchor_top = 0.70
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 1)
+
+[node name="BottomGradient" type="TextureRect" parent="."]
+layout_mode = 1
+anchor_top = 0.52
+anchor_right = 1.0
+anchor_bottom = 0.72
+grow_vertical = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 0
+
+[node name="SANOverlay" type="Control" parent="."]
+layout_mode = 1
+anchor_top = 0.73
+anchor_right = 1.0
+anchor_bottom = 0.90
+offset_left = 64.0
+offset_right = -44.0
+grow_vertical = 2
+mouse_filter = 2
+visible = false
+
+[node name="SANLabel" type="Label" parent="SANOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 0.25, 0.25, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 64
 text = ""
-fit_content = true
+horizontal_alignment = 0
+vertical_alignment = 0
 
-[node name="SANDamageLabel" type="Label" parent="VBoxContainer"]
+[node name="NarrationArea" type="Control" parent="."]
+layout_mode = 1
+anchor_top = 0.73
+anchor_right = 1.0
+anchor_bottom = 0.93
+offset_left = 64.0
+offset_right = -44.0
+grow_vertical = 2
+mouse_filter = 2
+visible = false
+
+[node name="NarrationText" type="Label" parent="NarrationArea"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.92, 0.74, 0.22, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.95)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 56
+text = ""
+horizontal_alignment = 0
+vertical_alignment = 0
+autowrap_mode = 3
+
+[node name="DialogueArea" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchor_top = 0.71
+anchor_right = 1.0
+anchor_bottom = 0.95
+offset_left = 64.0
+offset_right = -44.0
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 22
+visible = false
+
+[node name="SpeakerName" type="Label" parent="DialogueArea"]
 layout_mode = 2
-text = "SAN -0"
+size_flags_horizontal = 3
+size_flags_vertical = 4
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 66
+text = ""
+visible = false
+
+[node name="DialogueText" type="Label" parent="DialogueArea"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.97, 0.97, 0.97, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/font_size = 54
+text = ""
+autowrap_mode = 3
+
+[node name="TapIndicator" type="Label" parent="."]
+layout_mode = 1
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -50.0
+offset_top = -148.0
+offset_right = 50.0
+offset_bottom = -40.0
+modulate = Color(1, 1, 1, 0)
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.75, 0.05, 0.05, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.7)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 68
+text = "▼"
 horizontal_alignment = 1
-theme_override_font_sizes/font_size = 24
-
-[node name="ContinueButton" type="Button" parent="VBoxContainer"]
-layout_mode = 2
-text = "続ける"
-custom_minimum_size = Vector2(200, 44)
+vertical_alignment = 1

@@ -1,0 +1,193 @@
+{
+  "days": [
+    {
+      "day": 1,
+      "case_id": "SEPD-0001",
+      "case_title": "赤箱返送事件",
+      "evidence_items": "破れた紙片、曲がったフック、空の赤箱",
+      "overview": "三年前に廃棄処理済みとされた保全箱が、警察庁地下搬入口へ返送された。差出人は存在しない部署名「特殊証拠保全課」。箱内には破れた紙片と曲がったフックが残されていた。",
+      "preservation_note": "紙片とフックを接触させないこと。箱内の空白が多い場合、内側から叩音が発生する。",
+      "event_cg_path": "res://resources/events/event_day_01.png"
+    },
+    {
+      "day": 2,
+      "case_id": "SEPD-0002",
+      "case_title": "無音硬貨紛失事件",
+      "evidence_items": "奇妙なコイン",
+      "overview": "コンビニ店員、タクシー運転手、遺品整理業者の三名が、同一の古銭を所持した直後に事故死。古銭は毎回、次の発見者の財布内へ移動していた。硬貨であるにもかかわらず、落下時に音を発しない。",
+      "preservation_note": "素手で触れないこと。受領記録に署名しないこと。",
+      "event_cg_path": "res://resources/events/event_day_02.png"
+    },
+    {
+      "day": 3,
+      "case_id": "SEPD-0003",
+      "case_title": "空室子守唄事件",
+      "evidence_items": "ひび割れた人形、子守唄の録音端末",
+      "overview": "空き家から深夜に子守唄が聞こえるとの通報。現場から人形と録音端末を回収。端末には録音データが存在しないが、再生操作を行うと女児の歌声が流れる。",
+      "preservation_note": "人形の顔を正面から見続けないこと。歌詞を聞き取らないこと。",
+      "event_cg_path": "res://resources/events/event_day_03.png"
+    },
+    {
+      "day": 4,
+      "case_id": "SEPD-0004",
+      "case_title": "四人目の食卓事件",
+      "evidence_items": "食卓写真、髪束、卓上鏡、小型人形",
+      "overview": "一家三名が失踪した住宅で、四人分の食器が並べられていた。家族写真には本来存在しない四人目が写り込み、写真内の人物だけが日ごとに増減する。",
+      "preservation_note": "写真、鏡、人形を一直線に並べないこと。鏡面に食卓写真を映さないこと。",
+      "event_cg_path": "res://resources/events/event_day_04.png"
+    },
+    {
+      "day": 5,
+      "case_id": "SEPD-0005",
+      "case_title": "未送信遺書事件",
+      "evidence_items": "破れた紙片、スマートフォン",
+      "overview": "変死した会社員の端末に、未送信の遺書が37件保存されていた。文面はすべて「まだ書ける」で終わっている。室内から紙片を回収。紙片の筆跡は被害者のものではない。",
+      "preservation_note": "紙片の文面を最後まで読まないこと。端末の予測変換を確認しないこと。",
+      "event_cg_path": "res://resources/events/event_day_05.png"
+    },
+    {
+      "day": 6,
+      "case_id": "SEPD-0006",
+      "case_title": "朱書き勤務表事件",
+      "evidence_items": "朱書きの勤務表、錆びたナイフ",
+      "overview": "交番勤務員が勤務表に赤字で記載された時刻通りに負傷。勤務表には本人が書いた覚えのない朱書きが残されていた。最後の欄には、死亡予定時刻と見られる空白がある。",
+      "preservation_note": "空白欄に氏名を書かないこと。ナイフの刃に勤務表を映さないこと。",
+      "event_cg_path": "res://resources/events/event_day_06.png"
+    },
+    {
+      "day": 7,
+      "case_id": "SEPD-0007",
+      "case_title": "読まれた供述調書事件",
+      "evidence_items": "供述調書、現場写真",
+      "overview": "被疑者が取調室で急死。死亡直前、「調書が先に喋った」と発言。調書には、取調官が質問する前の回答が記録されていた。現場写真内の被疑者の口元は黒く塗り潰されている。",
+      "preservation_note": "調書を音読しないこと。写真と調書を重ねないこと。",
+      "event_cg_path": "res://resources/events/event_day_07.png"
+    },
+    {
+      "day": 8,
+      "case_id": "SEPD-0008",
+      "case_title": "八束町古銭事件",
+      "evidence_items": "古銭",
+      "overview": "八束町で四名が相次いで死亡。全員が同じ古銭を一時所有していた。古銭は財布、賽銭箱、貯金箱、遺品袋から発見され、常に表を向く。",
+      "preservation_note": "「受け取った」と発話しないこと。受領印を押さないこと。",
+      "event_cg_path": "res://resources/events/event_day_08.png"
+    },
+    {
+      "day": 9,
+      "case_id": "SEPD-0009",
+      "case_title": "戻り銭賽銭箱事件",
+      "evidence_items": "小銭七枚、切れた念珠",
+      "overview": "神社の賽銭箱から、投入者の財布へ小銭が戻る現象が発生。戻った小銭を使った者は、同額分の記憶を失ったと証言。境内から切れた念珠を回収。",
+      "preservation_note": "小銭の枚数を数えないこと。念珠と小銭を円形に配置しないこと。",
+      "event_cg_path": "res://resources/events/event_day_09.png"
+    },
+    {
+      "day": 10,
+      "case_id": "SEPD-0010",
+      "case_title": "会計音声記録事件",
+      "evidence_items": "レシート束、古銭、店内防犯音声",
+      "overview": "閉店後の無人店舗でレジ開閉音が記録された。防犯音声には、店員の声で「次の方どうぞ」と繰り返す音声が残る。該当店員は事件前日に死亡。",
+      "preservation_note": "レシートの合計額を計算しないこと。音声を最後まで再生しないこと。",
+      "event_cg_path": "res://resources/events/event_day_10.png"
+    },
+    {
+      "day": 11,
+      "case_id": "SEPD-0011",
+      "case_title": "港湾倉庫吊下事件",
+      "evidence_items": "曲がったフック、古いロープ片",
+      "overview": "港湾倉庫で作業員が吊り下げられた状態で発見された。梁にロープをかけた痕跡はなく、遺体の手首には上方向へ引かれた痣が残る。床から曲がったフックを回収。",
+      "preservation_note": "首元の紐状物を外すこと。フックの先端を上に向けたまま放置しないこと。",
+      "event_cg_path": "res://resources/events/event_day_11.png"
+    },
+    {
+      "day": 12,
+      "case_id": "SEPD-0012",
+      "case_title": "床下藁人形事件",
+      "evidence_items": "藁人形、錆びた釘",
+      "overview": "被疑者宅の床下から藁人形を回収。人形の胸には釘が一本刺さっており、同時刻に被害者が急性心不全で死亡していた。被疑者は「打っていない釘が増えた」と供述。",
+      "preservation_note": "釘の数を声に出して数えないこと。胸部を正面に向け続けないこと。",
+      "event_cg_path": "res://resources/events/event_day_12.png"
+    },
+    {
+      "day": 13,
+      "case_id": "SEPD-0013",
+      "case_title": "未搬出荷札事件",
+      "evidence_items": "古い荷札、曲がったフック、破れた紙片",
+      "overview": "閉鎖済み倉庫の棚から、存在しない作業員名が書かれた荷札を回収。荷札には「未搬出」と記載。以降、関係者の持ち物に同様の荷札が付着する現象が発生。",
+      "preservation_note": "荷札に自分の名前を書かないこと。フックと荷札を隣接させないこと。",
+      "event_cg_path": "res://resources/events/event_day_13.png"
+    },
+    {
+      "day": 14,
+      "case_id": "SEPD-0014",
+      "case_title": "密室美容室鏡面事件",
+      "evidence_items": "卓上鏡、散髪用ケープ、割れた櫛",
+      "overview": "閉店後の美容室で店主が死亡。店内は内側から施錠。防犯映像には、店主が鏡へ向かって笑い続ける姿が記録されていた。鏡の中の店主だけが笑っていない。",
+      "preservation_note": "鏡面を布で覆うこと。自分の全身を鏡に入れないこと。",
+      "event_cg_path": "res://resources/events/event_day_14.png"
+    },
+    {
+      "day": 15,
+      "case_id": "SEPD-0015",
+      "case_title": "試着室入替事件",
+      "evidence_items": "姿見鏡、試着室番号札、証明写真",
+      "overview": "商業施設の試着室で利用者が失踪。直後、姿見鏡に利用者の姿が映り続けた。鏡の前で別人が着替えると、鏡内の人物がその服装へ変化した。",
+      "preservation_note": "鏡と証明写真を向かい合わせにしないこと。番号札を首から下げないこと。",
+      "event_cg_path": "res://resources/events/event_day_15.png"
+    },
+    {
+      "day": 16,
+      "case_id": "SEPD-0016",
+      "case_title": "廃寺念珠事件",
+      "evidence_items": "念珠、経文片",
+      "overview": "廃寺跡で身元不明遺体を発見。遺体は念珠を握りしめ、指の骨には反復運動による摩耗があった。念珠の玉には爪痕が多数残る。",
+      "preservation_note": "玉の数を数えないこと。経文片を念珠の内側に置かないこと。",
+      "event_cg_path": "res://resources/events/event_day_16.png"
+    },
+    {
+      "day": 17,
+      "case_id": "SEPD-0017",
+      "case_title": "告解録音事件",
+      "evidence_items": "念珠、古いICレコーダー、白紙",
+      "overview": "山中の小屋から、告解のような録音が入ったICレコーダーを回収。録音者は不明。再生するたび、聞き手本人しか知らない過去の罪が一つ追加される。",
+      "preservation_note": "録音を再生しないこと。白紙に自分の罪を書かないこと。",
+      "event_cg_path": "res://resources/events/event_day_17.png"
+    },
+    {
+      "day": 18,
+      "case_id": "SEPD-0018",
+      "case_title": "卒業写真黒影事件",
+      "evidence_items": "卒業写真、黒い毛髪片",
+      "overview": "高校同窓会後、参加者が相次いで死亡。全員が同じ卒業写真を所持していた。写真には撮影当時存在しない黒い影が写り、死亡直前には被害者の背後まで移動していた。",
+      "preservation_note": "写真を長時間見続けないこと。毛髪片を写真の上に置かないこと。",
+      "event_cg_path": "res://resources/events/event_day_18.png"
+    },
+    {
+      "day": 19,
+      "case_id": "SEPD-0019",
+      "case_title": "証明写真連続焼失事件",
+      "evidence_items": "証明写真束、焦げた髪束",
+      "overview": "証明写真機で撮影した利用者の写真だけが、数日後に黒く焼け落ちる事件。被害者の顔写真は、焼失後も行政端末上に残り続け、まばたきするとの報告あり。",
+      "preservation_note": "写真束を顔が見える向きで並べないこと。髪束を写真の四隅に触れさせないこと。",
+      "event_cg_path": "res://resources/events/event_day_19.png"
+    },
+    {
+      "day": 20,
+      "case_id": "SEPD-0020",
+      "case_title": "第九棚職員消失事件",
+      "evidence_items": "職員証、複数呪具の破片、存在しない棚の管理札",
+      "overview": "特殊証拠保全課内で職員が一名消失。監視記録では、消失者が保管室奥の第九棚へ自ら入る姿が確認された。第九棚は施設図面に存在しない。",
+      "preservation_note": "管理札を読み上げないこと。職員証の顔写真を確認し続けないこと。",
+      "event_cg_path": "res://resources/events/event_day_20.png"
+    },
+    {
+      "day": 21,
+      "case_id": "SEPD-0021",
+      "case_title": "新米保全官回収事件",
+      "evidence_items": "赤箱、白紙の職員名札、全対象呪具",
+      "overview": "保全課内部資料。新米保全官の配属日と、現行記録に矛盾が発生。過去二十一日分の作業記録に、同一保全官の署名が複数筆跡で残る。全対象呪具が自発的に第九棚前へ集積。",
+      "preservation_note": "自分の名札を確認しないこと。封印完了後、最初に聞こえた声へ返事をしないこと。",
+      "event_cg_path": "res://resources/events/event_day_21.png"
+    }
+  ]
+}

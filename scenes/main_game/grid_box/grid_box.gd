@@ -2,16 +2,20 @@ class_name GridBox
 extends Control
 
 ## グリッド描画・配置判定・プレビュー表示を担当するコアコンポーネント
+## ボックスは常に FIXED_BOX_W × FIXED_BOX_H の固定サイズ。
+## グリッドはその中央に配置され、cell_size で収まるよう計算される。
 
-const MAX_cell_size: int = 160
-const MAX_GRID_PIXELS: int = 900  # 画面に収まる最大グリッド幅（px）
+const FIXED_BOX_W: int = 1000  # 保全箱の固定幅（px）
+const FIXED_BOX_H: int = 1000  # 保全箱の固定高さ（px）
+
 const GRID_COLOR: Color = Color(0.3, 0.3, 0.35, 1.0)
 const BLOCKED_COLOR: Color = Color(0.0, 0.0, 0.0, 0.55)
 const BORDER_COLOR: Color = Color(0.6, 0.45, 0.2, 0.6)
 const PREVIEW_OK_COLOR: Color = Color(0.2, 0.9, 0.2, 0.45)
 const PREVIEW_NG_COLOR: Color = Color(0.9, 0.2, 0.2, 0.45)
 
-var cell_size: int = MAX_cell_size
+var cell_size: int = 100
+var _grid_offset: Vector2 = Vector2.ZERO  # グリッドをボックス内で中央に寄せるオフセット
 
 var _bg_texture: Texture2D = null
 
@@ -50,25 +54,31 @@ func setup(stage: StageData) -> void:
 
 
 func _recalc_cell_size() -> void:
-	var max_dim: int = max(grid_width, grid_height)
-	cell_size = min(MAX_cell_size, MAX_GRID_PIXELS / max_dim)
+	cell_size = int(min(FIXED_BOX_W / grid_width, FIXED_BOX_H / grid_height))
 
 
 func _update_size() -> void:
-	custom_minimum_size = Vector2(grid_width * cell_size, grid_height * cell_size)
+	custom_minimum_size = Vector2(FIXED_BOX_W, FIXED_BOX_H)
 	size = custom_minimum_size
+	# グリッド領域をボックス中央に配置するオフセットを計算
+	var grid_px_w := grid_width * cell_size
+	var grid_px_h := grid_height * cell_size
+	_grid_offset = Vector2(
+		(FIXED_BOX_W - grid_px_w) * 0.5,
+		(FIXED_BOX_H - grid_px_h) * 0.5
+	)
 
 
 # ─── 座標変換 ──────────────────────────────────────────────────
 func local_pos_to_cell(local_pos: Vector2) -> Vector2i:
-	return Vector2i(
-		int(local_pos.x) / cell_size,
-		int(local_pos.y) / cell_size
-	)
+	var adjusted := local_pos - _grid_offset
+	if adjusted.x < 0.0 or adjusted.y < 0.0:
+		return Vector2i(-1, -1)
+	return Vector2i(int(adjusted.x) / cell_size, int(adjusted.y) / cell_size)
 
 
 func cell_to_local_pos(cell: Vector2i) -> Vector2:
-	return Vector2(cell.x * cell_size, cell.y * cell_size)
+	return Vector2(cell.x * cell_size, cell.y * cell_size) + _grid_offset
 
 
 # ─── プレビュー ────────────────────────────────────────────────
@@ -76,7 +86,6 @@ func set_preview(item: ItemData, shape: Array[Vector2i], local_pos: Vector2) -> 
 	_preview_item = item
 	_preview_shape = shape
 
-	# アイテムの中心をマウス位置に合わせたオリジン計算
 	if item != null:
 		var bb := item.get_bounding_box(shape)
 		var offset_x := bb.x / 2
@@ -106,15 +115,12 @@ func _preview_clear() -> void:
 func can_place(shape: Array[Vector2i], origin: Vector2i) -> bool:
 	for cell in shape:
 		var world_cell := Vector2i(origin.x + cell.x, origin.y + cell.y)
-		# 範囲外チェック
 		if world_cell.x < 0 or world_cell.x >= grid_width:
 			return false
 		if world_cell.y < 0 or world_cell.y >= grid_height:
 			return false
-		# ブロックマスチェック
 		if world_cell in blocked_cells:
 			return false
-		# 重複チェック
 		if cell_map.has(world_cell):
 			return false
 	return true
@@ -135,14 +141,12 @@ func place_item(item: ItemData, shape: Array[Vector2i], origin: Vector2i) -> boo
 	return true
 
 
-## グリッドに置かれたアイテムを全て除去（Resetボタン用）
 func clear_all_items() -> void:
 	cell_map.clear()
 	_preview_clear()
 	queue_redraw()
 
 
-## アイテム未配置かつブロックでもない空きセル数を返す
 func get_empty_cell_count() -> int:
 	var count := 0
 	for row in range(grid_height):
@@ -153,8 +157,6 @@ func get_empty_cell_count() -> int:
 	return count
 
 
-## ランダムな空きセルを呪われたセル（封印不能マス）に追加する
-## 戻り値: 追加できた場合 true
 func add_cursed_cell() -> bool:
 	var empty_cells: Array[Vector2i] = []
 	for row in range(grid_height):
@@ -170,7 +172,6 @@ func add_cursed_cell() -> bool:
 	return true
 
 
-## 指定アイテムが占めているセル数を返す（SAN計算用）
 func get_item_cell_count(item: ItemData) -> int:
 	var count := 0
 	for v in cell_map.values():
@@ -179,7 +180,6 @@ func get_item_cell_count(item: ItemData) -> int:
 	return count
 
 
-## 全配置済みアイテムをユニークリストで返す
 func get_placed_items() -> Array[ItemData]:
 	var seen: Dictionary = {}
 	var result: Array[ItemData] = []
@@ -199,18 +199,21 @@ func _draw() -> void:
 
 
 func _draw_background() -> void:
-	# 全体背景
+	# ボックス全体（固定サイズ）に背景テクスチャを描画
 	var bg_rect := Rect2(Vector2.ZERO, size)
 	if _bg_texture:
 		draw_texture_rect(_bg_texture, bg_rect, false)
 	else:
 		draw_rect(bg_rect, Color(0.12, 0.12, 0.15, 1.0))
 
-	# ブロックマス
+	# ブロックマス（グリッドオフセット適用）
 	for cell in blocked_cells:
-		var rect := Rect2(cell.x * cell_size, cell.y * cell_size, cell_size, cell_size)
+		var rect := Rect2(
+			_grid_offset.x + cell.x * cell_size,
+			_grid_offset.y + cell.y * cell_size,
+			cell_size, cell_size
+		)
 		draw_rect(rect, BLOCKED_COLOR)
-		# バツ印
 		var p1 := Vector2(rect.position.x + 8, rect.position.y + 8)
 		var p2 := Vector2(rect.end.x - 8, rect.end.y - 8)
 		var p3 := Vector2(rect.end.x - 8, rect.position.y + 8)
@@ -220,8 +223,7 @@ func _draw_background() -> void:
 
 
 func _draw_placed_items() -> void:
-	# アイテムごとにセルをグループ化
-	var item_cells: Dictionary = {}  # ItemData -> Array[Vector2i]
+	var item_cells: Dictionary = {}
 	for world_cell in cell_map:
 		var item: ItemData = cell_map[world_cell]
 		if not item_cells.has(item):
@@ -235,7 +237,6 @@ func _draw_placed_items() -> void:
 		var fill_color := Color(c.r, c.g, c.b, 0.80)
 		var border_color := Color(c.r * 0.6, c.g * 0.6, c.b * 0.6, 1.0)
 
-		# 配置セルのバウンディングボックスを求める
 		var min_col: int = cells[0].x
 		var min_row: int = cells[0].y
 		var max_col: int = cells[0].x
@@ -249,10 +250,9 @@ func _draw_placed_items() -> void:
 		var bb_h: int = max_row - min_row + 1
 
 		if item.texture:
-			# テクスチャをバウンディングボックス全体に1枚描画（セルでマスクしない）
 			var full_rect := Rect2(
-				float(min_col * cell_size),
-				float(min_row * cell_size),
+				_grid_offset.x + float(min_col * cell_size),
+				_grid_offset.y + float(min_row * cell_size),
 				float(bb_w * cell_size),
 				float(bb_h * cell_size)
 			)
@@ -260,20 +260,18 @@ func _draw_placed_items() -> void:
 
 		for world_cell in cells:
 			var rect := Rect2(
-				world_cell.x * cell_size + 1,
-				world_cell.y * cell_size + 1,
+				_grid_offset.x + world_cell.x * cell_size + 1,
+				_grid_offset.y + world_cell.y * cell_size + 1,
 				cell_size - 2,
 				cell_size - 2
 			)
-
 			if not item.texture:
 				draw_rect(rect, fill_color)
 			draw_rect(rect, border_color, false, 1.5)
 
-			# danger dot（左上）
 			for d in range(item.danger):
-				var dot_x := float(world_cell.x * cell_size + 10 + d * 14)
-				var dot_y := float(world_cell.y * cell_size + 10)
+				var dot_x := _grid_offset.x + float(world_cell.x * cell_size + 10 + d * 14)
+				var dot_y := _grid_offset.y + float(world_cell.y * cell_size + 10)
 				draw_circle(Vector2(dot_x, dot_y), 5.0, Color(1, 0.3, 0.3, 0.9))
 
 
@@ -287,15 +285,14 @@ func _draw_preview() -> void:
 
 	for cell in _preview_shape:
 		var world_cell := Vector2i(_preview_origin.x + cell.x, _preview_origin.y + cell.y)
-		# グリッド外は描画しない
 		if world_cell.x < 0 or world_cell.x >= grid_width:
 			continue
 		if world_cell.y < 0 or world_cell.y >= grid_height:
 			continue
 
 		var rect := Rect2(
-			world_cell.x * cell_size + 1,
-			world_cell.y * cell_size + 1,
+			_grid_offset.x + world_cell.x * cell_size + 1,
+			_grid_offset.y + world_cell.y * cell_size + 1,
 			cell_size - 2,
 			cell_size - 2
 		)
@@ -304,14 +301,16 @@ func _draw_preview() -> void:
 
 
 func _draw_grid_lines() -> void:
+	var grid_h := grid_height * cell_size
+	var grid_w := grid_width * cell_size
 	# 縦線
 	for col in range(grid_width + 1):
-		var x := col * cell_size
-		draw_line(Vector2(x, 0), Vector2(x, grid_height * cell_size), BORDER_COLOR, 1.5)
+		var x := _grid_offset.x + col * cell_size
+		draw_line(Vector2(x, _grid_offset.y), Vector2(x, _grid_offset.y + grid_h), BORDER_COLOR, 1.5)
 	# 横線
 	for row in range(grid_height + 1):
-		var y := row * cell_size
-		draw_line(Vector2(0, y), Vector2(grid_width * cell_size, y), BORDER_COLOR, 1.5)
+		var y := _grid_offset.y + row * cell_size
+		draw_line(Vector2(_grid_offset.x, y), Vector2(_grid_offset.x + grid_w, y), BORDER_COLOR, 1.5)
 
 
 # ─── マウス（クリック配置モード用） ────────────────────────────
@@ -319,6 +318,4 @@ func _gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
 		var mb := event as InputEventMouseButton
 		if mb.button_index == MOUSE_BUTTON_LEFT and mb.pressed:
-			# クリック配置モードの確定はMainGameが行う
-			# ここではシグナルを出さず、MainGameがset_preview済みのoriginを使う
 			pass

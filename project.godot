@@ -14,7 +14,7 @@ config/name="整理パズル型サバイバル"
 config/description="五日間の封印作業を生き延びろ"
 run/main_scene="res://scenes/title_screen/title_screen.tscn"
 config/features=PackedStringArray("4.5", "Forward Plus")
-config/icon="res://icon.svg"
+config/icon="res://icon.png"
 
 [autoload]
 

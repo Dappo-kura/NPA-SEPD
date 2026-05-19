@@ -23,14 +23,12 @@
 
 ## ゲームプレイ
 
-### 基本操作
+### 基本操作（モバイル専用）
 
 | 操作 | 効果 |
 |------|------|
+| アイテムをタップ | トレイ内で90°回転 |
 | アイテムをドラッグ | グリッドに配置 |
-| アイテムをタップ | クリック配置モード（タップで場所を指定） |
-| **R キー** | アイテムを90°回転（回転可能なアイテムのみ） |
-| 右クリック / ESC | アイテムをトレイに戻す |
 | **封印ボタン** | 作業を完了して次のステージへ |
 | **リセットボタン** | グリッドのアイテムをすべてトレイに戻す |
 
@@ -122,24 +120,32 @@ NPA-SEPD/
 ├── autoload/
 │   ├── game_manager.gd      # ゲーム進行・SAN管理・シグナル
 │   ├── audio_manager.gd     # BGM・SE再生
-│   └── save_manager.gd      # セーブ・ギャラリー解放管理
+│   ├── save_manager.gd      # セーブ・ギャラリー解放管理
+│   └── scenario_manager.gd  # シナリオ・事件資料JSONロード
 ├── resources/
 │   ├── items/               # アイテム定義 (.tres) と画像 (.png)
 │   ├── stages/              # ステージ定義 day_01〜day_21.tres
-│   ├── events/              # イベントCG (event_001.png ほか)
+│   ├── events/              # イベントCG (event_day_01〜21.png)
+│   ├── fonts/               # HG明朝E (HGRME.TTC)
 │   ├── sound/               # BGM・SE (.mp3)
+│   ├── scenarios/
+│   │   ├── day_scenarios.json   # シナリオ本文・intro_lines・clear_lines
+│   │   └── case_files.json      # 事件資料データ（21件）
+│   ├── puzzle_bg.png        # パズル画面背景（机イメージ）
 │   └── title.png            # タイトル背景画像
 ├── scenes/
 │   ├── main_game/           # メインゲーム（グリッド・HUD・トレイ）
-│   │   ├── grid_box/        # グリッド描画・配置ロジック
+│   │   ├── grid_box/        # グリッド描画・配置ロジック（固定1000×1000px）
 │   │   ├── hud/             # SANバー・タイマー表示
-│   │   ├── item_tray/       # アイテムトレイ（横スクロール）
+│   │   ├── item_tray/       # アイテムトレイ（横スクロール・タップ回転）
 │   │   └── item_visual/     # アイテム描画コンポーネント
-│   ├── title_screen/        # タイトル画面
+│   ├── day_intro/           # VNスタイル：シナリオ導入テキスト表示
+│   ├── case_file/           # 事件資料画面（黒背景・赤タイトル）
+│   ├── nightmare_event/     # VNスタイル：封印後ナイトメア＋SAN表示
+│   ├── title_screen/        # タイトル画面（4ボタン）
 │   ├── ending/              # エンディング（タイプライター演出）
 │   ├── game_over/           # ゲームオーバー画面
 │   ├── gallery/             # ギャラリー画面
-│   ├── nightmare_event/     # 封印後のナイトメアテキスト表示
 │   └── jump_scare/          # ジャンプスケア・ノイズエフェクト
 └── project.godot
 ```
@@ -151,6 +157,7 @@ NPA-SEPD/
 | `GameManager` | ゲームモード・現在Day・SAN値・ステージ遷移 |
 | `AudioManager` | BGMループ再生・SE（puzzle / enter / seal） |
 | `SaveManager` | ストーリー進行・無限ベスト・ギャラリー解放の永続化 |
+| `ScenarioManager` | day_scenarios.json / case_files.json のロードと参照 |
 
 ### 主要シグナル（GameManager）
 
@@ -159,6 +166,20 @@ signal san_changed(new_value: int)   # SAN値変化
 signal day_changed(new_day: int)     # Day/Wave切り替わり
 signal game_over()                   # SAN 0
 signal game_cleared()                # 全ステージクリア
+```
+
+---
+
+## 画面フロー
+
+```
+タイトル画面
+  └─ ストーリー開始
+       └─ day_intro（VNスタイル：シナリオ導入）
+            └─ case_file（事件資料：管理番号・搬入物・概要・保全注意）
+                 └─ main_game（パズル）
+                      └─ nightmare_event（VNスタイル：封印後テキスト＋SAN増減）
+                           └─ day_intro（次の日）→ … → エンディング
 ```
 
 ---
@@ -180,22 +201,31 @@ signal game_cleared()                # 全ステージクリア
 ### 完了
 - [x] データクラス（ItemData / StageData / MergeRecipe）
 - [x] 21 ステージ・9 シナリオ
-- [x] ドラッグ＆ドロップ / クリック配置の状態機械
-- [x] アイテム回転（R キー）
+- [x] ドラッグ＆ドロップ配置の状態機械
+- [x] アイテム回転（テトリス方式：タップで回転、ドラッグで配置）
 - [x] SAN システム・制限時間・呪われたセル
 - [x] ジャンプスケア・ノイズシェーダー
 - [x] BGM・SE（AudioManager）
 - [x] ストーリーモード / 無限モード分岐
 - [x] セーブ機能（SaveManager）
-- [x] ギャラリー画面
+- [x] ギャラリー画面（ScenarioManagerから動的生成）
 - [x] エンディング（タイプライター演出）
 - [x] タイトル画面（フルスクリーン背景・4ボタン）
+- [x] VNスタイルシナリオ表示（day_intro / nightmare_event）
+  - フルスクリーンCG背景・下部グラデーション
+  - ナレーション（金色テキスト）/ セリフ（白テキスト＋話者名）
+  - タイプライター演出・赤点滅▼インジケーター
+  - HG明朝Eフォント適用
+- [x] 事件資料画面（case_file）
+  - day_scenarios.json から分離した case_files.json（21件）
+  - 管理番号・搬入物・概要・保全注意を黒背景で表示
+- [x] パズル画面背景（puzzle_bg.png：机イメージ）
+- [x] グリッドボックス固定サイズ化（1000×1000px、グリッド線が箱一杯に展開）
 
 ### 未実装（今後の予定）
 - [ ] Phase B: 無限モード難易度上昇（呪われたセルの強化）
 - [ ] ジャンプスケア専用アセット（jumpscare.png / jumpscare.mp3 / noise.mp3）
-- [ ] ギャラリー event_002〜021 画像
-- [ ] 日本語フォント組み込み（文字化け対策）
+- [ ] ギャラリー event_002〜021 画像の用意
 - [ ] Android ビルド・実機テスト
 
 ---
