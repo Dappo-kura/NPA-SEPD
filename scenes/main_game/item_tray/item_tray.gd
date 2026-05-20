@@ -28,6 +28,7 @@ func _add_item_visual(item: ItemData) -> void:
 	var iv := ItemVisual.new()
 	iv.setup(item)
 	iv.show_danger = true
+	iv.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	iv.drag_started.connect(_on_item_drag_started)
 	iv.item_clicked.connect(_on_item_clicked)
 	hbox.add_child(iv)

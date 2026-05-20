@@ -1,0 +1,239 @@
+{
+  "schema_version": 1,
+  "project": "NPA-SEPD",
+  "purpose": "kaiki_still_for_incomplete_seal",
+  "trigger_condition": "Show only when seal is executed with unplaced pieces / SAN damage > 0.",
+  "stills": [
+    {
+      "day": 1,
+      "chapter_number": 1,
+      "chapter_title": "配属初日",
+      "case_id": "SEPD-0001",
+      "case_title": "赤箱返送事件",
+      "trigger": "unplaced_pieces_on_seal",
+      "kaiki_still_id": 1,
+      "kaiki_still_path": "res://resources/events/kaiki_day_01.png",
+      "gallery_title": "怪異 Day 1 赤箱返送事件"
+    },
+    {
+      "day": 2,
+      "chapter_number": 1,
+      "chapter_title": "配属初日",
+      "case_id": "SEPD-0002",
+      "case_title": "無音硬貨紛失事件",
+      "trigger": "unplaced_pieces_on_seal",
+      "kaiki_still_id": 2,
+      "kaiki_still_path": "res://resources/events/kaiki_day_02.png",
+      "gallery_title": "怪異 Day 2 無音硬貨紛失事件"
+    },
+    {
+      "day": 3,
+      "chapter_number": 2,
+      "chapter_title": "人形の家",
+      "case_id": "SEPD-0003",
+      "case_title": "空室子守唄事件",
+      "trigger": "unplaced_pieces_on_seal",
+      "kaiki_still_id": 3,
+      "kaiki_still_path": "res://resources/events/kaiki_day_03.png",
+      "gallery_title": "怪異 Day 3 空室子守唄事件"
+    },
+    {
+      "day": 4,
+      "chapter_number": 2,
+      "chapter_title": "人形の家",
+      "case_id": "SEPD-0004",
+      "case_title": "四人目の食卓事件",
+      "trigger": "unplaced_pieces_on_seal",
+      "kaiki_still_id": 4,
+      "kaiki_still_path": "res://resources/events/kaiki_day_04.png",
+      "gallery_title": "怪異 Day 4 四人目の食卓事件"
+    },
+    {
+      "day": 5,
+      "chapter_number": 3,
+      "chapter_title": "文字の呪縛",
+      "case_id": "SEPD-0005",
+      "case_title": "未送信遺書事件",
+      "trigger": "unplaced_pieces_on_seal",
+      "kaiki_still_id": 5,
+      "kaiki_still_path": "res://resources/events/kaiki_day_05.png",
+      "gallery_title": "怪異 Day 5 未送信遺書事件"
+    },
+    {
+      "day": 6,
+      "chapter_number": 3,
+      "chapter_title": "文字の呪縛",
+      "case_id": "SEPD-0006",
+      "case_title": "朱書き勤務表事件",
+      "trigger": "unplaced_pieces_on_seal",
+      "kaiki_still_id": 6,
+      "kaiki_still_path": "res://resources/events/kaiki_day_06.png",
+      "gallery_title": "怪異 Day 6 朱書き勤務表事件"
+    },
+    {
+      "day": 7,
+      "chapter_number": 3,
+      "chapter_title": "文字の呪縛",
+      "case_id": "SEPD-0007",
+      "case_title": "読まれた供述調書事件",
+      "trigger": "unplaced_pieces_on_seal",
+      "kaiki_still_id": 7,
+      "kaiki_still_path": "res://resources/events/kaiki_day_07.png",
+      "gallery_title": "怪異 Day 7 読まれた供述調書事件"
+    },
+    {
+      "day": 8,
+      "chapter_number": 4,
+      "chapter_title": "廻る因縁",
+      "case_id": "SEPD-0008",
+      "case_title": "八束町古銭事件",
+      "trigger": "unplaced_pieces_on_seal",
+      "kaiki_still_id": 8,
+      "kaiki_still_path": "res://resources/events/kaiki_day_08.png",
+      "gallery_title": "怪異 Day 8 八束町古銭事件"
+    },
+    {
+      "day": 9,
+      "chapter_number": 4,
+      "chapter_title": "廻る因縁",
+      "case_id": "SEPD-0009",
+      "case_title": "戻り銭賽銭箱事件",
+      "trigger": "unplaced_pieces_on_seal",
+      "kaiki_still_id": 9,
+      "kaiki_still_path": "res://resources/events/kaiki_day_09.png",
+      "gallery_title": "怪異 Day 9 戻り銭賽銭箱事件"
+    },
+    {
+      "day": 10,
+      "chapter_number": 4,
+      "chapter_title": "廻る因縁",
+      "case_id": "SEPD-0010",
+      "case_title": "会計音声記録事件",
+      "trigger": "unplaced_pieces_on_seal",
+      "kaiki_still_id": 10,
+      "kaiki_still_path": "res://resources/events/kaiki_day_10.png",
+      "gallery_title": "怪異 Day 10 会計音声記録事件"
+    },
+    {
+      "day": 11,
+      "chapter_number": 5,
+      "chapter_title": "鈎の記憶",
+      "case_id": "SEPD-0011",
+      "case_title": "港湾倉庫吊下事件",
+      "trigger": "unplaced_pieces_on_seal",
+      "kaiki_still_id": 11,
+      "kaiki_still_path": "res://resources/events/kaiki_day_11.png",
+      "gallery_title": "怪異 Day 11 港湾倉庫吊下事件"
+    },
+    {
+      "day": 12,
+      "chapter_number": 5,
+      "chapter_title": "鈎の記憶",
+      "case_id": "SEPD-0012",
+      "case_title": "床下藁人形事件",
+      "trigger": "unplaced_pieces_on_seal",
+      "kaiki_still_id": 12,
+      "kaiki_still_path": "res://resources/events/kaiki_day_12.png",
+      "gallery_title": "怪異 Day 12 床下藁人形事件"
+    },
+    {
+      "day": 13,
+      "chapter_number": 5,
+      "chapter_title": "鈎の記憶",
+      "case_id": "SEPD-0013",
+      "case_title": "未搬出荷札事件",
+      "trigger": "unplaced_pieces_on_seal",
+      "kaiki_still_id": 13,
+      "kaiki_still_path": "res://resources/events/kaiki_day_13.png",
+      "gallery_title": "怪異 Day 13 未搬出荷札事件"
+    },
+    {
+      "day": 14,
+      "chapter_number": 6,
+      "chapter_title": "鏡の向こう",
+      "case_id": "SEPD-0014",
+      "case_title": "密室美容室鏡面事件",
+      "trigger": "unplaced_pieces_on_seal",
+      "kaiki_still_id": 14,
+      "kaiki_still_path": "res://resources/events/kaiki_day_14.png",
+      "gallery_title": "怪異 Day 14 密室美容室鏡面事件"
+    },
+    {
+      "day": 15,
+      "chapter_number": 6,
+      "chapter_title": "鏡の向こう",
+      "case_id": "SEPD-0015",
+      "case_title": "試着室入替事件",
+      "trigger": "unplaced_pieces_on_seal",
+      "kaiki_still_id": 15,
+      "kaiki_still_path": "res://resources/events/kaiki_day_15.png",
+      "gallery_title": "怪異 Day 15 試着室入替事件"
+    },
+    {
+      "day": 16,
+      "chapter_number": 7,
+      "chapter_title": "念珠と罪業",
+      "case_id": "SEPD-0016",
+      "case_title": "廃寺念珠事件",
+      "trigger": "unplaced_pieces_on_seal",
+      "kaiki_still_id": 16,
+      "kaiki_still_path": "res://resources/events/kaiki_day_16.png",
+      "gallery_title": "怪異 Day 16 廃寺念珠事件"
+    },
+    {
+      "day": 17,
+      "chapter_number": 7,
+      "chapter_title": "念珠と罪業",
+      "case_id": "SEPD-0017",
+      "case_title": "告解録音事件",
+      "trigger": "unplaced_pieces_on_seal",
+      "kaiki_still_id": 17,
+      "kaiki_still_path": "res://resources/events/kaiki_day_17.png",
+      "gallery_title": "怪異 Day 17 告解録音事件"
+    },
+    {
+      "day": 18,
+      "chapter_number": 8,
+      "chapter_title": "写真に宿る影",
+      "case_id": "SEPD-0018",
+      "case_title": "卒業写真黒影事件",
+      "trigger": "unplaced_pieces_on_seal",
+      "kaiki_still_id": 18,
+      "kaiki_still_path": "res://resources/events/kaiki_day_18.png",
+      "gallery_title": "怪異 Day 18 卒業写真黒影事件"
+    },
+    {
+      "day": 19,
+      "chapter_number": 8,
+      "chapter_title": "写真に宿る影",
+      "case_id": "SEPD-0019",
+      "case_title": "証明写真連続焼失事件",
+      "trigger": "unplaced_pieces_on_seal",
+      "kaiki_still_id": 19,
+      "kaiki_still_path": "res://resources/events/kaiki_day_19.png",
+      "gallery_title": "怪異 Day 19 証明写真連続焼失事件"
+    },
+    {
+      "day": 20,
+      "chapter_number": 9,
+      "chapter_title": "最後の封印",
+      "case_id": "SEPD-0020",
+      "case_title": "第九棚職員消失事件",
+      "trigger": "unplaced_pieces_on_seal",
+      "kaiki_still_id": 20,
+      "kaiki_still_path": "res://resources/events/kaiki_day_20.png",
+      "gallery_title": "怪異 Day 20 第九棚職員消失事件"
+    },
+    {
+      "day": 21,
+      "chapter_number": 9,
+      "chapter_title": "最後の封印",
+      "case_id": "SEPD-0021",
+      "case_title": "新米保全官回収事件",
+      "trigger": "unplaced_pieces_on_seal",
+      "kaiki_still_id": 21,
+      "kaiki_still_path": "res://resources/events/kaiki_day_21.png",
+      "gallery_title": "怪異 Day 21 新米保全官回収事件"
+    }
+  ]
+}

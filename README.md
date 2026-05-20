@@ -5,8 +5,10 @@
 
 ![Godot 4.5](https://img.shields.io/badge/Godot-4.5-478CBF?logo=godotengine)
 ![GDScript](https://img.shields.io/badge/Language-GDScript-blue)
-![Platform](https://img.shields.io/badge/Platform-Android%20%2F%20PC-green)
+![Platform](https://img.shields.io/badge/Platform-Android%20%2F%20PC%20%2F%20Web-green)
 ![Status](https://img.shields.io/badge/Status-MVP%20実装中-yellow)
+
+**▶ [ブラウザでプレイ（Web版）](https://dappo-kura.github.io/NPA-SEPD/)**
 
 ---
 
@@ -109,7 +111,7 @@
 |------|------|
 | エンジン | Godot 4.5 |
 | 言語 | GDScript |
-| 対象プラットフォーム | Android（縦画面）/ PC |
+| 対象プラットフォーム | Android（縦画面）/ PC / Web（GitHub Pages） |
 | 画面解像度 | 1080 × 2400 px（Pixel 7 縦画面基準） |
 | 画面向き | 縦固定（Portrait） |
 
@@ -125,12 +127,14 @@ NPA-SEPD/
 ├── resources/
 │   ├── items/               # アイテム定義 (.tres) と画像 (.png)
 │   ├── stages/              # ステージ定義 day_01〜day_21.tres
-│   ├── events/              # イベントCG (event_day_01〜21.png)
+│   ├── events/              # イベントCG (event_day_01〜21.png) / 怪異スチル (kaiki_day_01〜21.png)
 │   ├── fonts/               # HG明朝E (HGRME.TTC)
 │   ├── sound/               # BGM・SE (.mp3)
+│   ├── jumpscare/           # ジャンプスケア素材 (jumpscare_N.png / jumpscare_N.mp3)
 │   ├── scenarios/
 │   │   ├── day_scenarios.json   # シナリオ本文・intro_lines・clear_lines
-│   │   └── case_files.json      # 事件資料データ（21件）
+│   │   ├── case_files.json      # 事件資料データ（21件）
+│   │   └── kaiki_stills.json    # 怪異スチルパス（21件）
 │   ├── puzzle_bg.png        # パズル画面背景（机イメージ）
 │   └── title.png            # タイトル背景画像
 ├── scenes/
@@ -146,7 +150,8 @@ NPA-SEPD/
 │   ├── ending/              # エンディング（タイプライター演出）
 │   ├── game_over/           # ゲームオーバー画面
 │   ├── gallery/             # ギャラリー画面
-│   └── jump_scare/          # ジャンプスケア・ノイズエフェクト
+│   ├── kaiki_still/         # フルスクリーン怪異スチル・赤フラッシュ演出（z_index=15）
+│   └── jump_scare/          # ジャンプスケア・グリッチシェーダー（ランダム選択・SE連動）
 └── project.godot
 ```
 
@@ -157,7 +162,7 @@ NPA-SEPD/
 | `GameManager` | ゲームモード・現在Day・SAN値・ステージ遷移 |
 | `AudioManager` | BGMループ再生・SE（puzzle / enter / seal） |
 | `SaveManager` | ストーリー進行・無限ベスト・ギャラリー解放の永続化 |
-| `ScenarioManager` | day_scenarios.json / case_files.json のロードと参照 |
+| `ScenarioManager` | day_scenarios.json / case_files.json / kaiki_stills.json のロードと参照 |
 
 ### 主要シグナル（GameManager）
 
@@ -204,7 +209,7 @@ signal game_cleared()                # 全ステージクリア
 - [x] ドラッグ＆ドロップ配置の状態機械
 - [x] アイテム回転（テトリス方式：タップで回転、ドラッグで配置）
 - [x] SAN システム・制限時間・呪われたセル
-- [x] ジャンプスケア・ノイズシェーダー
+- [x] ジャンプスケア（グリッチシェーダー・連番素材ランダム選択・SE音量フェードアウト）
 - [x] BGM・SE（AudioManager）
 - [x] ストーリーモード / 無限モード分岐
 - [x] セーブ機能（SaveManager）
@@ -221,12 +226,14 @@ signal game_cleared()                # 全ステージクリア
   - 管理番号・搬入物・概要・保全注意を黒背景で表示
 - [x] パズル画面背景（puzzle_bg.png：机イメージ）
 - [x] グリッドボックス固定サイズ化（1000×1000px、グリッド線が箱一杯に展開）
+- [x] 怪異スチル（kaiki_still.tscn・赤フラッシュ演出・未収納封印時のみ表示）
+- [x] 怪異スチル素材 21 枚（kaiki_day_01〜21.png）+ kaiki_stills.json
+- [x] Web版公開（GitHub Pages: https://dappo-kura.github.io/NPA-SEPD/ ）
 
 ### 未実装（今後の予定）
 - [ ] Phase B: 無限モード難易度上昇（呪われたセルの強化）
-- [ ] ジャンプスケア専用アセット（jumpscare.png / jumpscare.mp3 / noise.mp3）
 - [ ] ギャラリー event_002〜021 画像の用意
-- [ ] Android ビルド・実機テスト
+- [ ] ジャンプスケアSE 再生問題の解消確認
 
 ---
 

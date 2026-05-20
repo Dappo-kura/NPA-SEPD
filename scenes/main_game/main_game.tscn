@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://gavmefwqsyku"]
+[gd_scene load_steps=10 format=3 uid="uid://gavmefwqsyku"]
 
 [ext_resource type="Script" uid="uid://bht2v08uvua63" path="res://scenes/main_game/main_game.gd" id="1_maingame"]
 [ext_resource type="PackedScene" path="res://scenes/main_game/hud/hud.tscn" id="2_hud"]
@@ -8,6 +8,7 @@
 [ext_resource type="PackedScene" path="res://scenes/nightmare_event/nightmare_event.tscn" id="6_nightmare"]
 [ext_resource type="PackedScene" uid="uid://jumpscare001" path="res://scenes/jump_scare/jump_scare.tscn" id="7_jumpscare"]
 [ext_resource type="Texture2D" uid="uid://bpg80slnnx6r" path="res://resources/puzzle_bg.png" id="8_puzzlebg"]
+[ext_resource type="PackedScene" uid="uid://kaiki_still001" path="res://scenes/kaiki_still/kaiki_still.tscn" id="9_kaikistill"]
 
 [node name="MainGame" type="Control"]
 layout_mode = 3
@@ -70,10 +71,13 @@ theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 40
 theme_override_constants/margin_bottom = 10
 
-[node name="GridBox" parent="VBoxContainer/GridArea" instance=ExtResource("4_gridbox")]
+[node name="GridCenter" type="CenterContainer" parent="VBoxContainer/GridArea"]
 layout_mode = 2
-size_flags_horizontal = 8
-size_flags_vertical = 4
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="GridBox" parent="VBoxContainer/GridArea/GridCenter" instance=ExtResource("4_gridbox")]
+layout_mode = 2
 
 [node name="ItemTray" parent="VBoxContainer" instance=ExtResource("3_itemtray")]
 layout_mode = 2
@@ -116,6 +120,14 @@ z_index = 10
 layout_mode = 1
 anchors_preset = 0
 mouse_filter = 2
+
+[node name="KaikiStill" parent="." instance=ExtResource("9_kaikistill")]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 
 [node name="NightmareEvent" parent="." instance=ExtResource("6_nightmare")]
 z_index = 20

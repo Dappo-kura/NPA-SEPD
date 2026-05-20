@@ -4,7 +4,7 @@ extends Control
 ## アイテムの形状を描画し、ドラッグ開始シグナルを発行するコンポーネント。
 ## トレイ内・ドラッグゴースト・図鑑プレビューのいずれでも使用する。
 
-const CELL_SIZE: int = 60
+const CELL_SIZE: int = 120
 const BORDER_WIDTH: float = 1.5
 
 @export var item_data: ItemData = null:

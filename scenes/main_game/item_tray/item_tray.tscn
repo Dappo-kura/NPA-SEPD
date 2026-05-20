@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://scenes/main_game/item_tray/item_tray.gd" id="1_itemtray"]
 
 [node name="ItemTray" type="ScrollContainer"]
-custom_minimum_size = Vector2(0, 260)
+custom_minimum_size = Vector2(0, 400)
 size_flags_horizontal = 3
 horizontal_scroll_mode = 1
 vertical_scroll_mode = 0

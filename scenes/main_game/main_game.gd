@@ -4,10 +4,11 @@ extends Control
 # ─── 子ノード参照 ──────────────────────────────────────────────
 @onready var hud: HUD = $VBoxContainer/HUDArea/HUD
 @onready var item_tray: ItemTray = $VBoxContainer/ItemTray
-@onready var grid_box: GridBox = $VBoxContainer/GridArea/GridBox
+@onready var grid_box: GridBox = $VBoxContainer/GridArea/GridCenter/GridBox
 @onready var reset_button: Button = $VBoxContainer/BottomArea/BottomBar/ResetButton
 @onready var seal_button: Button = $VBoxContainer/BottomArea/BottomBar/SealButton
 @onready var drag_ghost: ItemVisual = $DragGhost
+@onready var kaiki_still: KaikiStill = $KaikiStill
 @onready var nightmare_event: NightmareEvent = $NightmareEvent
 @onready var jump_scare: JumpScare = $JumpScare
 @onready var hint_label: Label = $HintLabel
@@ -17,6 +18,10 @@ enum State { IDLE, DRAGGING, CLICK_TO_PLACE, SEALED }
 var _state: State = State.IDLE
 
 var _game_just_cleared := false
+
+# 怪異スチル → nightmare_event への引き継ぎ用
+var _pending_nightmare_text: String = ""
+var _pending_damage: int = 0
 
 # DRAGGING / CLICK_TO_PLACE 共通
 var _active_item: ItemData = null
@@ -32,6 +37,7 @@ var _cursed_cell_timer: float = 0.0      # 次の呪われたセル出現まで�
 
 
 func _ready() -> void:
+	_apply_bottom_safe_area()
 	GameManager.game_over.connect(_on_game_over)
 	GameManager.game_cleared.connect(_on_game_cleared)
 	GameManager.day_changed.connect(_on_day_changed)
@@ -45,6 +51,7 @@ func _ready() -> void:
 	grid_box.item_placed.connect(_on_grid_item_placed)
 	grid_box.item_rejected.connect(_on_grid_item_rejected)
 
+	kaiki_still.still_dismissed.connect(_on_kaiki_still_dismissed)
 	nightmare_event.event_dismissed.connect(_on_nightmare_dismissed)
 
 	drag_ghost.visible = false
@@ -52,6 +59,17 @@ func _ready() -> void:
 	drag_ghost.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 	_init_from_game_manager()
+
+
+func _apply_bottom_safe_area() -> void:
+	if OS.get_name() != "Android":
+		return
+	var usable: Rect2i = DisplayServer.screen_get_usable_rect()
+	var window_h: int = DisplayServer.window_get_size().y
+	var bottom_inset: int = window_h - (usable.position.y + usable.size.y)
+	var pad: int = max(bottom_inset, 100)  # ジェスチャーナビ領域を確保（最低100px）
+	var bottom_area := $VBoxContainer/BottomArea as MarginContainer
+	bottom_area.add_theme_constant_override("margin_bottom", pad)
 
 
 func _init_from_game_manager() -> void:
@@ -296,18 +314,31 @@ func _on_seal_pressed() -> void:
 	for item in GameManager.unplaced_items:
 		records.append({"item": item, "cell_count": item.shape.size()})
 
-	var damage := GameManager.calculate_total_san_damage(records)
-	GameManager.apply_san_damage(damage)
+	_pending_damage = GameManager.calculate_total_san_damage(records)
+	GameManager.apply_san_damage(_pending_damage)
 
-	# ナイトメアイベントを表示（ストーリーモードはJSONから取得）
-	var nightmare_text := ""
+	# ナイトメアテキストを準備（怪異スチル後に nightmare_event へ渡す）
+	_pending_nightmare_text = ""
 	if GameManager.game_mode == GameManager.MODE_STORY:
 		var scenario_data := ScenarioManager.get_day(GameManager.current_day)
-		nightmare_text = scenario_data.get("nightmare_text", "")
-	if nightmare_text.is_empty():
+		_pending_nightmare_text = scenario_data.get("nightmare_text", "")
+	if _pending_nightmare_text.is_empty():
 		var stage := GameManager.active_stage
-		nightmare_text = stage.nightmare_text if stage else "暗闇が迫る……"
-	nightmare_event.show_event(nightmare_text, damage)
+		_pending_nightmare_text = stage.nightmare_text if stage else "暗闇が迫る……"
+
+	# damage > 0 かつ対応スチルが存在する場合のみ怪異スチルを先に表示
+	if _pending_damage > 0:
+		var still_data := ScenarioManager.get_kaiki_still(GameManager.current_day)
+		var still_path: String = still_data.get("kaiki_still_path", "")
+		if still_path != "" and ResourceLoader.exists(still_path):
+			kaiki_still.show_still(GameManager.current_day)
+			return
+
+	nightmare_event.show_event(_pending_nightmare_text, _pending_damage)
+
+
+func _on_kaiki_still_dismissed() -> void:
+	nightmare_event.show_event(_pending_nightmare_text, _pending_damage)
 
 
 func _on_nightmare_dismissed() -> void:
