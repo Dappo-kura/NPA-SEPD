@@ -22,6 +22,7 @@ GameManager="*res://autoload/game_manager.gd"
 AudioManager="*res://autoload/audio_manager.gd"
 SaveManager="*res://autoload/save_manager.gd"
 ScenarioManager="*res://autoload/scenario_manager.gd"
+UIFont="*res://autoload/ui_font.gd"
 
 [display]
 

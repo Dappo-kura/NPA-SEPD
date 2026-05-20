@@ -16,20 +16,19 @@ func _ready() -> void:
 	visible = false
 
 
-# res://resources/jumpscare/ 内の jumpscare_N.png を検索してインデックス一覧を構築
+# load() で連番を直接探索（エクスポートビルドでも動作する）
 func _scan_available_jumpscares() -> void:
-	var dir := DirAccess.open(JUMPSCARE_DIR)
-	if dir == null:
-		return
-	dir.list_dir_begin()
-	var file_name := dir.get_next()
-	while file_name != "":
-		if not dir.current_is_dir() and file_name.begins_with("jumpscare_") and file_name.ends_with(".png"):
-			var num_str := file_name.trim_prefix("jumpscare_").trim_suffix(".png")
-			if num_str.is_valid_int():
-				_available_indices.append(num_str.to_int())
-		file_name = dir.get_next()
-	dir.list_dir_end()
+	var consecutive_missing := 0
+	var i := 1
+	while consecutive_missing < 5:
+		var img_path := JUMPSCARE_DIR + "jumpscare_%d.png" % i
+		var tex = load(img_path)
+		if tex != null:
+			_available_indices.append(i)
+			consecutive_missing = 0
+		else:
+			consecutive_missing += 1
+		i += 1
 	_available_indices.sort()
 
 
@@ -37,22 +36,25 @@ func trigger() -> void:
 	# エフェクト中の再トリガーは無視
 	if _is_playing:
 		return
-	if _available_indices.is_empty():
-		return
-	# ランダムに選択
-	var idx: int = _available_indices[randi() % _available_indices.size()]
+	# インデックスが取得できていればランダム選択、なければ画像なしで演出だけ実行
+	var idx: int = -1
+	if not _available_indices.is_empty():
+		idx = _available_indices[randi() % _available_indices.size()]
 	_play_effect(idx)
 
 
 func _play_effect(idx: int) -> void:
 	_is_playing = true
 
-	# 選択インデックスに対応する画像・SEをロード
-	var img_path := JUMPSCARE_DIR + "jumpscare_%d.png" % idx
-	scare_image.texture = load(img_path) if ResourceLoader.exists(img_path) else null
-
-	var se_path := JUMPSCARE_DIR + "jumpscare_%d.mp3" % idx
-	audio_scare.stream = load(se_path)  # null + エラー出力でロード失敗を検知可能
+	# 画像・SEをロード（idx=-1 または load失敗の場合は null）
+	if idx >= 0:
+		var img_path := JUMPSCARE_DIR + "jumpscare_%d.png" % idx
+		scare_image.texture = load(img_path)
+		var se_path := JUMPSCARE_DIR + "jumpscare_%d.mp3" % idx
+		audio_scare.stream = load(se_path)
+	else:
+		scare_image.texture = null
+		audio_scare.stream = null
 
 	visible = true
 
