@@ -30,5 +30,5 @@ window/size/viewport_width=1080
 window/size/viewport_height=2400
 window/size/initial_position_type=0
 window/stretch/mode="canvas_items"
-window/stretch/aspect="expand"
+window/stretch/aspect="keep"
 window/handheld/orientation=1
