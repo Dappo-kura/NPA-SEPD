@@ -65,7 +65,7 @@ size_flags_horizontal = 3
 [node name="GridArea" type="MarginContainer" parent="VBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-size_flags_vertical = 4
+size_flags_vertical = 3
 theme_override_constants/margin_left = 40
 theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 40
@@ -93,13 +93,13 @@ theme_override_constants/margin_right = 40
 theme_override_constants/margin_bottom = 40
 
 [node name="BottomBar" type="HBoxContainer" parent="VBoxContainer/BottomArea"]
-custom_minimum_size = Vector2(0, 140)
+custom_minimum_size = Vector2(0, 132)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 20
 
 [node name="ResetButton" type="Button" parent="VBoxContainer/BottomArea/BottomBar"]
-custom_minimum_size = Vector2(0, 120)
+custom_minimum_size = Vector2(0, 112)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -107,7 +107,7 @@ theme_override_font_sizes/font_size = 44
 text = "リセット"
 
 [node name="SealButton" type="Button" parent="VBoxContainer/BottomArea/BottomBar"]
-custom_minimum_size = Vector2(0, 120)
+custom_minimum_size = Vector2(0, 112)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3

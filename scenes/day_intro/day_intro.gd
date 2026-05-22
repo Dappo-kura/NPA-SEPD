@@ -1,6 +1,6 @@
 extends Control
 
-const CHAR_INTERVAL := 0.04
+const CHAR_INTERVAL := 0.07
 const TYPE_NARRATION := "narration"
 const TYPE_DIALOGUE := "dialogue"
 const FONT_PATH := "res://resources/fonts/HGRME.TTC"

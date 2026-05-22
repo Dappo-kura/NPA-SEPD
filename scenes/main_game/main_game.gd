@@ -29,6 +29,10 @@ var _active_shape: Array[Vector2i] = []
 
 # DRAGGING専用
 var _drag_screen_offset: Vector2 = Vector2.ZERO
+var _drag_lift_offset: Vector2 = Vector2(0.0, 150.0)
+
+# 回転ボタン（CLICK_TO_PLACE + can_rotate のときのみ表示）
+var _rotate_button: Button = null
 
 # ─── タイマー ─────────────────────────────────────────────────
 var _time_limit: float = 0.0
@@ -37,7 +41,8 @@ var _cursed_cell_timer: float = 0.0      # 次の呪われたセル出現まで�
 
 
 func _ready() -> void:
-	_apply_bottom_safe_area()
+	_apply_safe_area_margins()
+	resized.connect(_apply_safe_area_margins)
 	GameManager.game_over.connect(_on_game_over)
 	GameManager.game_cleared.connect(_on_game_cleared)
 	GameManager.day_changed.connect(_on_day_changed)
@@ -58,18 +63,59 @@ func _ready() -> void:
 	drag_ghost.is_ghost = true
 	drag_ghost.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
+	_setup_rotate_button()
 	_init_from_game_manager()
 
 
-func _apply_bottom_safe_area() -> void:
-	if OS.get_name() != "Android":
-		return
-	var usable: Rect2i = DisplayServer.screen_get_usable_rect()
-	var window_h: int = DisplayServer.window_get_size().y
-	var bottom_inset: int = window_h - (usable.position.y + usable.size.y)
-	var pad: int = max(bottom_inset, 100)  # ジェスチャーナビ領域を確保（最低100px）
-	var bottom_area := $VBoxContainer/BottomArea as MarginContainer
-	bottom_area.add_theme_constant_override("margin_bottom", pad)
+func _setup_rotate_button() -> void:
+	_rotate_button = Button.new()
+	_rotate_button.text = "回転"
+	_rotate_button.custom_minimum_size = Vector2(0, 112)
+	_rotate_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_rotate_button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	_rotate_button.add_theme_font_size_override("font_size", 44)
+	_rotate_button.visible = false
+	var font_path := "res://resources/fonts/HGRME.TTC"
+	if ResourceLoader.exists(font_path):
+		_rotate_button.add_theme_font_override("font", load(font_path))
+	_rotate_button.pressed.connect(_on_rotate_pressed)
+	var bottom_bar: HBoxContainer = $VBoxContainer/BottomArea/BottomBar
+	bottom_bar.add_child(_rotate_button)
+	bottom_bar.move_child(_rotate_button, reset_button.get_index() + 1)
+
+
+func _on_rotate_pressed() -> void:
+	_rotate_active()
+	_update_grid_preview_from_mouse()
+
+
+func _apply_safe_area_margins() -> void:
+	var base_side_pad := 40
+	var base_top_pad := 16
+	var base_bottom_pad := 40
+	var bottom_pad := base_bottom_pad
+	var left_pad := base_side_pad
+	var right_pad := base_side_pad
+	var top_pad := base_top_pad
+
+	if OS.get_name() == "Android":
+		var usable: Rect2i = DisplayServer.screen_get_usable_rect()
+		var window_size: Vector2i = DisplayServer.window_get_size()
+		left_pad = max(base_side_pad, usable.position.x)
+		top_pad = max(base_top_pad, usable.position.y + base_top_pad)
+		right_pad = max(base_side_pad, window_size.x - (usable.position.x + usable.size.x))
+		bottom_pad = max(100, window_size.y - (usable.position.y + usable.size.y))
+
+	_apply_margin($VBoxContainer/HUDArea, left_pad, top_pad, right_pad, 8)
+	_apply_margin($VBoxContainer/GridArea, left_pad, 10, right_pad, 10)
+	_apply_margin($VBoxContainer/BottomArea, left_pad, 8, right_pad, bottom_pad)
+
+
+func _apply_margin(container: MarginContainer, left: int, top: int, right: int, bottom: int) -> void:
+	container.add_theme_constant_override("margin_left", left)
+	container.add_theme_constant_override("margin_top", top)
+	container.add_theme_constant_override("margin_right", right)
+	container.add_theme_constant_override("margin_bottom", bottom)
 
 
 func _init_from_game_manager() -> void:
@@ -150,6 +196,10 @@ func _handle_input_click_to_place(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
 		var mb := event as InputEventMouseButton
 		if mb.button_index == MOUSE_BUTTON_LEFT and mb.pressed:
+			# 回転ボタン上のタップは GUI に任せてここでは処理しない
+			if _rotate_button != null and _rotate_button.visible:
+				if _rotate_button.get_global_rect().has_point(mb.position):
+					return
 			var grid_local := grid_box.get_local_mouse_position()
 			var in_grid := Rect2(Vector2.ZERO, grid_box.size).has_point(grid_local)
 			if in_grid:
@@ -176,7 +226,8 @@ func _on_tray_drag_started(item: ItemData, shape: Array[Vector2i], screen_pos: V
 func _update_drag_ghost() -> void:
 	if drag_ghost.visible:
 		var mouse_global := get_global_mouse_position()
-		drag_ghost.global_position = mouse_global - drag_ghost.size * 0.5
+		# 指先の少し上へ浮かせ、ピース全体を見ながら配置できるようにする。
+		drag_ghost.global_position = mouse_global - drag_ghost.size * 0.5 - _drag_lift_offset
 
 
 func _update_grid_preview_from_mouse() -> void:
@@ -192,12 +243,7 @@ func _update_grid_preview_from_mouse() -> void:
 
 # ─── クリック配置 ────────────────────────────────────────────
 func _on_tray_click_selected(item: ItemData, shape: Array[Vector2i]) -> void:
-	# 回転できるピースはタップでトレイ内回転（テトリス方式）
-	if item.can_rotate:
-		item_tray.rotate_item(item)
-		return
-
-	# 回転できないピースのみタップでクリック配置モード
+	# タップで選択 → CLICK_TO_PLACE。回転は回転ボタンで行う。
 	if _state == State.CLICK_TO_PLACE and _active_item != null:
 		item_tray.restore_item(_active_item)
 		GameManager.unplaced_items.append(_active_item)
@@ -228,11 +274,15 @@ func _try_place_on_grid(grid_local: Vector2) -> void:
 
 func _on_grid_item_placed(_item: ItemData, _origin: Vector2i) -> void:
 	AudioManager.play_se("puzzle")
+	if OS.get_name() == "Android":
+		Input.vibrate_handheld(24)
 	_active_item = null
 	_active_shape = []
 
 
 func _on_grid_item_rejected() -> void:
+	if OS.get_name() == "Android":
+		Input.vibrate_handheld(60)
 	jump_scare.trigger()
 	_restore_to_tray()
 
@@ -363,3 +413,6 @@ func _on_game_cleared() -> void:
 # ─── 状態変更 ─────────────────────────────────────────────────
 func _set_state(new_state: State) -> void:
 	_state = new_state
+	if _rotate_button != null:
+		_rotate_button.visible = (new_state == State.CLICK_TO_PLACE
+			and _active_item != null and _active_item.can_rotate)
