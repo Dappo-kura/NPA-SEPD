@@ -64,6 +64,31 @@ func rotate_item(item: ItemData) -> void:
 			return
 
 
+## 指定アイテムのビジュアル形状を外部から設定する（回転後の同期用）
+func update_item_shape(item: ItemData, shape: Array[Vector2i]) -> void:
+	for entry in _item_entries:
+		if entry["item"] == item:
+			(entry["visual"] as ItemVisual).set_shape(shape)
+			return
+
+
+## 指定アイテムを選択状態にする（他はすべて解除）
+func select_item(item: ItemData) -> void:
+	for entry in _item_entries:
+		var iv := entry["visual"] as ItemVisual
+		iv.is_selected = entry["item"] == item
+		iv.queue_redraw()
+
+
+## 全アイテムの選択状態を解除する
+func deselect_all() -> void:
+	for entry in _item_entries:
+		var iv := entry["visual"] as ItemVisual
+		if iv.is_selected:
+			iv.is_selected = false
+			iv.queue_redraw()
+
+
 func _on_item_drag_started(item: ItemData, shape: Array[Vector2i], screen_pos: Vector2) -> void:
 	item_drag_started.emit(item, shape, screen_pos)
 

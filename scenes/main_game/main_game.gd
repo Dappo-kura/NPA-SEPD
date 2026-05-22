@@ -31,9 +31,6 @@ var _active_shape: Array[Vector2i] = []
 var _drag_screen_offset: Vector2 = Vector2.ZERO
 var _drag_lift_offset: Vector2 = Vector2(0.0, 150.0)
 
-# 回転ボタン（CLICK_TO_PLACE + can_rotate のときのみ表示）
-var _rotate_button: Button = null
-
 # ─── タイマー ─────────────────────────────────────────────────
 var _time_limit: float = 0.0
 var _cursed_cell_interval: float = 15.0  # 呪われたセルが出現する間隔（秒）
@@ -63,30 +60,7 @@ func _ready() -> void:
 	drag_ghost.is_ghost = true
 	drag_ghost.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
-	_setup_rotate_button()
 	_init_from_game_manager()
-
-
-func _setup_rotate_button() -> void:
-	_rotate_button = Button.new()
-	_rotate_button.text = "回転"
-	_rotate_button.custom_minimum_size = Vector2(0, 112)
-	_rotate_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_rotate_button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	_rotate_button.add_theme_font_size_override("font_size", 44)
-	_rotate_button.visible = false
-	var font_path := "res://resources/fonts/HGRME.TTC"
-	if ResourceLoader.exists(font_path):
-		_rotate_button.add_theme_font_override("font", load(font_path))
-	_rotate_button.pressed.connect(_on_rotate_pressed)
-	var bottom_bar: HBoxContainer = $VBoxContainer/BottomArea/BottomBar
-	bottom_bar.add_child(_rotate_button)
-	bottom_bar.move_child(_rotate_button, reset_button.get_index() + 1)
-
-
-func _on_rotate_pressed() -> void:
-	_rotate_active()
-	_update_grid_preview_from_mouse()
 
 
 func _apply_safe_area_margins() -> void:
@@ -196,24 +170,26 @@ func _handle_input_click_to_place(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
 		var mb := event as InputEventMouseButton
 		if mb.button_index == MOUSE_BUTTON_LEFT and mb.pressed:
-			# 回転ボタン上のタップは GUI に任せてここでは処理しない
-			if _rotate_button != null and _rotate_button.visible:
-				if _rotate_button.get_global_rect().has_point(mb.position):
-					return
 			var grid_local := grid_box.get_local_mouse_position()
 			var in_grid := Rect2(Vector2.ZERO, grid_box.size).has_point(grid_local)
 			if in_grid:
 				_try_place_on_grid(grid_local)
-			else:
+			elif not item_tray.get_global_rect().has_point(mb.position):
+				# グリッドでもトレイでもない場所のタップ → 選択解除
+				# トレイ内タップは item_click_selected シグナルで処理する
 				_restore_to_tray()
 
 
 # ─── ドラッグ ─────────────────────────────────────────────────
 func _on_tray_drag_started(item: ItemData, shape: Array[Vector2i], screen_pos: Vector2) -> void:
+	# CLICK_TO_PLACE で別ピースを選択していた場合は選択解除のみ（トレイに残す）
+	if _state == State.CLICK_TO_PLACE and _active_item != null and _active_item != item:
+		item_tray.deselect_all()
+
 	_active_item = item
 	_active_shape = shape
 	item_tray.remove_item(item)
-	GameManager.unplaced_items.erase(item)  # 手に取った瞬間に除外
+	GameManager.unplaced_items.erase(item)  # ドラッグ開始時に除外
 
 	drag_ghost.setup(item)
 	drag_ghost.set_shape(shape)
@@ -243,15 +219,22 @@ func _update_grid_preview_from_mouse() -> void:
 
 # ─── クリック配置 ────────────────────────────────────────────
 func _on_tray_click_selected(item: ItemData, shape: Array[Vector2i]) -> void:
-	# タップで選択 → CLICK_TO_PLACE。回転は回転ボタンで行う。
-	if _state == State.CLICK_TO_PLACE and _active_item != null:
-		item_tray.restore_item(_active_item)
-		GameManager.unplaced_items.append(_active_item)
+	# 選択中の同じピースを再タップ → 回転
+	if _state == State.CLICK_TO_PLACE and _active_item == item:
+		if item.can_rotate:
+			_active_shape = item.get_rotated_shape(_active_shape)
+			item_tray.update_item_shape(item, _active_shape)
+			_update_grid_preview_from_mouse()
+		return
+
+	# 別ピースをタップ → 選択切り替え（前の選択を解除するだけ、トレイから取り出さない）
+	if _state == State.CLICK_TO_PLACE:
+		item_tray.deselect_all()
 
 	_active_item = item
 	_active_shape = shape
-	item_tray.remove_item(item)
-	GameManager.unplaced_items.erase(item)
+	# ピースはトレイに残したまま選択状態にする（配置時に除去）
+	item_tray.select_item(item)
 	_set_state(State.CLICK_TO_PLACE)
 
 
@@ -260,14 +243,19 @@ func _try_place_on_grid(grid_local: Vector2) -> void:
 	if _active_item == null:
 		return
 
-	var bb := _active_item.get_bounding_box(_active_shape)
+	var placing_item := _active_item  # シグナルで _active_item が null になる前に保存
+	var placing_state := _state
+	var bb := placing_item.get_bounding_box(_active_shape)
 	var cell := grid_box.local_pos_to_cell(grid_local)
 	var origin := Vector2i(cell.x - bb.x / 2, cell.y - bb.y / 2)
 
-	var success := grid_box.place_item(_active_item, _active_shape, origin)
+	var success := grid_box.place_item(placing_item, _active_shape, origin)
 	if success:
-		GameManager.carried_items.append(_active_item)
-		# unplaced_items からは手に取った時点で除外済み
+		# CLICK_TO_PLACE はトレイに残したまま選択していたので、ここで除去する
+		if placing_state == State.CLICK_TO_PLACE:
+			item_tray.remove_item(placing_item)
+			GameManager.unplaced_items.erase(placing_item)
+		GameManager.carried_items.append(placing_item)
 		drag_ghost.visible = false
 		_set_state(State.IDLE)
 
@@ -289,8 +277,13 @@ func _on_grid_item_rejected() -> void:
 
 func _restore_to_tray() -> void:
 	if _active_item != null:
-		item_tray.restore_item(_active_item)
-		GameManager.unplaced_items.append(_active_item)  # 手に取った時点で除外済みなので常に追加
+		if _state == State.DRAGGING:
+			# ドラッグ中はトレイから取り出していたので戻す
+			item_tray.restore_item(_active_item)
+			GameManager.unplaced_items.append(_active_item)
+		else:
+			# CLICK_TO_PLACE はトレイに残っているので選択解除のみ
+			item_tray.deselect_all()
 	drag_ghost.visible = false
 	grid_box.clear_preview()
 	_active_item = null
@@ -413,6 +406,3 @@ func _on_game_cleared() -> void:
 # ─── 状態変更 ─────────────────────────────────────────────────
 func _set_state(new_state: State) -> void:
 	_state = new_state
-	if _rotate_button != null:
-		_rotate_button.visible = (new_state == State.CLICK_TO_PLACE
-			and _active_item != null and _active_item.can_rotate)

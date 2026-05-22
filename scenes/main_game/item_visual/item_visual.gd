@@ -20,6 +20,7 @@ const BORDER_WIDTH: float = 1.5
 var current_shape: Array[Vector2i] = []
 var is_ghost: bool = false        # trueのときは半透明で描画
 var show_danger: bool = false     # danger数値を表示するか
+var is_selected: bool = false     # trueのとき選択ハイライトを描画
 
 signal drag_started(item: ItemData, shape: Array[Vector2i], screen_pos: Vector2)
 signal item_clicked(item: ItemData, shape: Array[Vector2i])
@@ -89,6 +90,11 @@ func _draw() -> void:
 		draw_string(ThemeDB.fallback_font, label_pos,
 				str(item_data.danger), HORIZONTAL_ALIGNMENT_LEFT, -1, 12,
 				Color.WHITE)
+
+	if is_selected:
+		var bb := item_data.get_bounding_box(current_shape)
+		var outline := Rect2(-4, -4, bb.x * CELL_SIZE + 8, bb.y * CELL_SIZE + 8)
+		draw_rect(outline, Color(1.0, 0.85, 0.1, 0.9), false, 3.5)
 
 
 # ─── マウスイベント ─────────────────────────────────────────────
