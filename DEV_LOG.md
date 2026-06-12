@@ -50,6 +50,16 @@
   4. `ad_manager.gd` の2関数を実SDK呼び出しに差し替え
   5. 注意: Web版はAdMob非対応。Web収益化は別途（AdSense for Games等）の検討が必要
 
+#### 展開方針（2026-06-12確認）: Google Playストア ＋ Web
+
+Playストア公開には広告以外に以下が必要（現状はデバッグビルドのみ）:
+- [ ] リリース用keystore作成（debug.keystore不可）・厳重保管
+- [ ] AABビルド対応（`gradlew bundleRelease`・現行ビルド方式を流用可）
+- [ ] versionCode/versionName の更新運用（現在 1 / 1.0 ハードコード）
+- [ ] Playコンソール登録（$25）・ストア掲載素材・スクリーンショット
+- [ ] プライバシーポリシーURL（広告SDK使用アプリは必須）・データセーフティ申告
+- [ ] ターゲットAPIレベルの最新要件確認・コンテンツレーティング（ホラー表現）
+
 ### ビルド環境の復旧（重要）
 
 - **Temp掃除で `build_pck.py` / `build_apk.py` と Gradleビルドdirのルートファイルが消失していた**
