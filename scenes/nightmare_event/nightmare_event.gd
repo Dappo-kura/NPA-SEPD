@@ -40,29 +40,26 @@ func _ready() -> void:
 func show_event(nightmare_text: String, san_damage: int) -> void:
 	_san_damage = san_damage
 
-	# CG背景をScenarioManagerから取得
-	var data := ScenarioManager.get_day(GameManager.current_day)
-	var cg_path: String = data.get("event_cg_path", "")
-	if cg_path != "" and ResourceLoader.exists(cg_path):
-		bg_image.texture = load(cg_path)
-	else:
-		bg_image.texture = null
-
 	# nightmare_text をVNラインにパース
+	bg_image.texture = null
 	_lines = _parse_text(nightmare_text)
-	# clear_linesがあれば優先使用
-	var scenario_data := ScenarioManager.get_day(GameManager.current_day)
-	var clear_lines = scenario_data.get("clear_lines", null)
-	if clear_lines is Array and not clear_lines.is_empty():
-		_lines = []
-		for entry in clear_lines:
-			_lines.append({
-				type = entry.get("type", "narration"),
-				speaker = entry.get("speaker", ""),
-				text = entry.get("text", "")
-			})
-	else:
-		_lines = _parse_text(nightmare_text)
+
+	# ストーリーモードのみ: CG背景と clear_lines をシナリオから取得
+	# （無限モードでは current_day が残留値のため参照しない）
+	if GameManager.game_mode == GameManager.MODE_STORY:
+		var data := ScenarioManager.get_day(GameManager.current_day)
+		var cg_path: String = data.get("event_cg_path", "")
+		if cg_path != "" and ResourceLoader.exists(cg_path):
+			bg_image.texture = load(cg_path)
+		var clear_lines = data.get("clear_lines", null)
+		if clear_lines is Array and not clear_lines.is_empty():
+			_lines = []
+			for entry in clear_lines:
+				_lines.append({
+					type = entry.get("type", "narration"),
+					speaker = entry.get("speaker", ""),
+					text = entry.get("text", "")
+				})
 	_line_index = 0
 	_showing_san = false
 	san_overlay.visible = false

@@ -13,6 +13,9 @@ func _ready() -> void:
 	infinite_button.pressed.connect(_on_infinite_pressed)
 	gallery_button.pressed.connect(_on_gallery_pressed)
 	quit_button.pressed.connect(_on_quit_pressed)
+	# ブラウザでは quit() が無効のためボタンごと隠す
+	if OS.has_feature("web"):
+		quit_button.visible = false
 
 
 func _on_story_pressed() -> void:

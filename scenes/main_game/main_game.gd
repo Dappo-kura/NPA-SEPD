@@ -18,6 +18,7 @@ enum State { IDLE, DRAGGING, CLICK_TO_PLACE, SEALED }
 var _state: State = State.IDLE
 
 var _game_just_cleared := false
+var _pending_game_over := false
 
 # 怪異スチル → nightmare_event への引き継ぎ用
 var _pending_nightmare_text: String = ""
@@ -150,6 +151,9 @@ func _process(delta: float) -> void:
 
 		# タイムアップ → 強制封印
 		if remaining <= 0.0:
+			# ドラッグ中のピースは unplaced_items から外れているため、
+			# 先にトレイへ戻してダメージ計算の対象に含める
+			_restore_to_tray()
 			jump_scare.trigger()
 			_on_seal_pressed()
 
@@ -370,7 +374,8 @@ func _on_seal_pressed() -> void:
 		_pending_nightmare_text = stage.nightmare_text if stage else "暗闇が迫る……"
 
 	# damage > 0 かつ対応スチルが存在する場合のみ怪異スチルを先に表示
-	if _pending_damage > 0:
+	# （ストーリーモード限定: 無限モードでは current_day が残留値のため）
+	if _pending_damage > 0 and GameManager.game_mode == GameManager.MODE_STORY:
 		var still_data := ScenarioManager.get_kaiki_still(GameManager.current_day)
 		var still_path: String = still_data.get("kaiki_still_path", "")
 		if still_path != "" and ResourceLoader.exists(still_path):
@@ -385,6 +390,10 @@ func _on_kaiki_still_dismissed() -> void:
 
 
 func _on_nightmare_dismissed() -> void:
+	# SAN 0 → 怪異スチル・ナイトメア・SAN表示を見せ終えてからゲームオーバーへ
+	if _pending_game_over:
+		get_tree().change_scene_to_file("res://scenes/game_over/game_over.tscn")
+		return
 	if GameManager.san_value > 0:
 		_game_just_cleared = false
 		GameManager.advance_day()
@@ -395,6 +404,11 @@ func _on_nightmare_dismissed() -> void:
 
 # ─── ゲーム終了 ───────────────────────────────────────────────
 func _on_game_over() -> void:
+	# 封印演出中（SANダメージ適用時）はシーンを即切り替えず、
+	# ナイトメア表示の完了後（_on_nightmare_dismissed）に遷移する
+	if _state == State.SEALED:
+		_pending_game_over = true
+		return
 	get_tree().change_scene_to_file("res://scenes/game_over/game_over.tscn")
 
 
