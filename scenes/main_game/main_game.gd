@@ -5,8 +5,12 @@ extends Control
 @onready var hud: HUD = $VBoxContainer/HUDArea/HUD
 @onready var item_tray: ItemTray = $VBoxContainer/ItemTray
 @onready var grid_box: GridBox = $VBoxContainer/GridArea/GridCenter/GridBox
+@onready var pause_button: Button = $VBoxContainer/BottomArea/BottomBar/PauseButton
 @onready var reset_button: Button = $VBoxContainer/BottomArea/BottomBar/ResetButton
 @onready var seal_button: Button = $VBoxContainer/BottomArea/BottomBar/SealButton
+@onready var pause_overlay: Control = $PauseOverlay
+@onready var resume_button: Button = $PauseOverlay/CenterContainer/VBoxContainer/ResumeButton
+@onready var to_title_button: Button = $PauseOverlay/CenterContainer/VBoxContainer/ToTitleButton
 @onready var drag_ghost: ItemVisual = $DragGhost
 @onready var kaiki_still: KaikiStill = $KaikiStill
 @onready var nightmare_event: NightmareEvent = $NightmareEvent
@@ -19,6 +23,7 @@ var _state: State = State.IDLE
 
 var _game_just_cleared := false
 var _pending_game_over := false
+var _paused := false
 
 # 怪異スチル → nightmare_event への引き継ぎ用
 var _pending_nightmare_text: String = ""
@@ -47,6 +52,9 @@ func _ready() -> void:
 
 	reset_button.pressed.connect(_on_reset_pressed)
 	seal_button.pressed.connect(_on_seal_pressed)
+	pause_button.pressed.connect(_on_pause_pressed)
+	resume_button.pressed.connect(_on_resume_pressed)
+	to_title_button.pressed.connect(_on_to_title_pressed)
 
 	item_tray.item_drag_started.connect(_on_tray_drag_started)
 	item_tray.item_click_selected.connect(_on_tray_click_selected)
@@ -123,6 +131,8 @@ func _on_day_changed(_day: int) -> void:
 
 # ─── 入力処理 ─────────────────────────────────────────────────
 func _input(event: InputEvent) -> void:
+	if _paused:
+		return
 	match _state:
 		State.DRAGGING:
 			_handle_input_dragging(event)
@@ -131,6 +141,8 @@ func _input(event: InputEvent) -> void:
 
 
 func _process(delta: float) -> void:
+	if _paused:
+		return  # タイマー・プレビュー更新を止める
 	match _state:
 		State.DRAGGING:
 			_update_drag_ghost()
@@ -342,6 +354,28 @@ func _on_reset_pressed() -> void:
 	item_tray.populate(GameManager.unplaced_items)
 
 	_set_state(State.IDLE)
+
+
+# ─── ポーズ（中断） ──────────────────────────────────────────
+func _on_pause_pressed() -> void:
+	if _state == State.SEALED or _paused:
+		return
+	_restore_to_tray()  # 選択・ドラッグ中のピースを戻してから止める
+	AudioManager.play_se("enter")
+	_paused = true
+	pause_overlay.visible = true
+
+
+func _on_resume_pressed() -> void:
+	AudioManager.play_se("enter")
+	_paused = false
+	pause_overlay.visible = false
+
+
+func _on_to_title_pressed() -> void:
+	# ストーリーの進行はDay開始時にセーブ済みなのでそのまま戻れる
+	AudioManager.play_se("enter")
+	get_tree().change_scene_to_file("res://scenes/title_screen/title_screen.tscn")
 
 
 # ─── 封印（Seal） ────────────────────────────────────────────

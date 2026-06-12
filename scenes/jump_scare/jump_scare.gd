@@ -62,13 +62,15 @@ func _play_effect(idx: int) -> void:
 	background.modulate.a = 1.0
 	scare_image.modulate.a = 1.0
 
-	# 効果音再生 → 0.5秒で音量フェードアウト
+	# 効果音再生 → 音量フェードアウト（SE音量設定を基準にする）
 	if audio_scare.stream != null:
 		audio_scare.stop()
-		audio_scare.volume_db = 0.0
+		var se_vol := AudioManager.get_se_volume()
+		var base_db := linear_to_db(se_vol) if se_vol > 0.0 else -80.0
+		audio_scare.volume_db = base_db
 		audio_scare.play()
 		var audio_tween := create_tween()
-		audio_tween.tween_method(_set_audio_db, 0.0, -80.0, 3.0)
+		audio_tween.tween_method(_set_audio_db, base_db, -80.0, 3.0)
 
 	# 0.7秒ホールド → 0.5秒フェードアウト
 	var tween := create_tween()

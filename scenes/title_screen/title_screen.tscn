@@ -32,7 +32,7 @@ anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
 offset_left = -270.0
-offset_top = -944.0
+offset_top = -1100.0
 offset_right = 270.0
 offset_bottom = -494.0
 grow_horizontal = 2
@@ -46,6 +46,13 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 32
 text = "ストーリーモード（α版）"
 
+[node name="ContinueButton" type="Button" parent="ButtonContainer"]
+visible = false
+custom_minimum_size = Vector2(360, 80)
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "続きから"
+
 [node name="InfiniteButton" type="Button" parent="ButtonContainer"]
 custom_minimum_size = Vector2(360, 80)
 layout_mode = 2
@@ -57,6 +64,12 @@ custom_minimum_size = Vector2(360, 80)
 layout_mode = 2
 theme_override_font_sizes/font_size = 32
 text = "ギャラリー"
+
+[node name="SettingsButton" type="Button" parent="ButtonContainer"]
+custom_minimum_size = Vector2(360, 80)
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "設定"
 
 [node name="QuitButton" type="Button" parent="ButtonContainer"]
 custom_minimum_size = Vector2(360, 70)

@@ -8,9 +8,20 @@ var story_cleared_days: int = 0          # ストーリーモードでクリア�
 var gallery_unlocked: Array[int] = []    # アンロック済みギャラリーID (event番号)
 var infinite_best_wave: int = 0          # 無限モードのベストウェーブ数
 
+# 進行中のストーリーラン（「続きから」用）。day 0 = ランなし
+var story_run_day: int = 0
+var story_run_san: int = 100
+
+# 音量設定（0.0〜1.0）
+var bgm_volume: float = 1.0
+var se_volume: float = 1.0
+
 # ─── 初期化 ───────────────────────────────────────────────
 func _ready() -> void:
 	load_data()
+	# AutoLoad順は AudioManager → SaveManager なのでここから音量を反映する
+	AudioManager.set_bgm_volume(bgm_volume)
+	AudioManager.set_se_volume(se_volume)
 
 
 # ─── セーブ ───────────────────────────────────────────────
@@ -19,6 +30,10 @@ func save_data() -> void:
 		"story_cleared_days": story_cleared_days,
 		"gallery_unlocked": gallery_unlocked,
 		"infinite_best_wave": infinite_best_wave,
+		"story_run_day": story_run_day,
+		"story_run_san": story_run_san,
+		"bgm_volume": bgm_volume,
+		"se_volume": se_volume,
 	}
 	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	if file == null:
@@ -45,6 +60,10 @@ func load_data() -> void:
 
 	story_cleared_days = parsed.get("story_cleared_days", 0)
 	infinite_best_wave = parsed.get("infinite_best_wave", 0)
+	story_run_day = int(parsed.get("story_run_day", 0))
+	story_run_san = int(parsed.get("story_run_san", 100))
+	bgm_volume = clampf(parsed.get("bgm_volume", 1.0), 0.0, 1.0)
+	se_volume = clampf(parsed.get("se_volume", 1.0), 0.0, 1.0)
 
 	var raw_gallery = parsed.get("gallery_unlocked", [])
 	gallery_unlocked.clear()
@@ -74,3 +93,29 @@ func on_infinite_wave_cleared(wave: int) -> void:
 # ─── ギャラリー判定 ───────────────────────────────────────
 func is_gallery_unlocked(event_id: int) -> bool:
 	return event_id in gallery_unlocked
+
+
+# ─── 進行中ストーリーラン（「続きから」） ──────────────────
+## 各Day開始時に呼び、Day番号とその時点のSANを記録する
+func save_story_run(day: int, san: int) -> void:
+	story_run_day = day
+	story_run_san = san
+	save_data()
+
+
+## ゲームオーバー・クリア時に呼び、進行中ランを消す
+func clear_story_run() -> void:
+	story_run_day = 0
+	story_run_san = 100
+	save_data()
+
+
+func has_story_run() -> bool:
+	return story_run_day >= 1
+
+
+# ─── 音量設定 ─────────────────────────────────────────────
+func save_volume_settings(bgm: float, se: float) -> void:
+	bgm_volume = clampf(bgm, 0.0, 1.0)
+	se_volume = clampf(se, 0.0, 1.0)
+	save_data()

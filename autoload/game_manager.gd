@@ -45,6 +45,17 @@ func start_story() -> void:
 	san_value = 100
 	unplaced_items.clear()
 	carried_items.clear()
+	SaveManager.save_story_run(current_day, san_value)
+	_setup_day()
+
+
+## セーブされた進行中ランから再開する（「続きから」）
+func continue_story() -> void:
+	game_mode = MODE_STORY
+	current_day = clampi(SaveManager.story_run_day, 1, 21)
+	san_value = clampi(SaveManager.story_run_san, 1, 100)
+	unplaced_items.clear()
+	carried_items.clear()
 	_setup_day()
 
 
@@ -95,10 +106,12 @@ func advance_day() -> void:
 	# ストーリーモード
 	SaveManager.on_story_day_cleared(current_day)
 	if current_day >= stages.size():
+		SaveManager.clear_story_run()  # 全クリア → 進行中ランを消す
 		game_cleared.emit()
 		return
 	current_day += 1
 	carried_items.clear()
+	SaveManager.save_story_run(current_day, san_value)  # 「続きから」用に記録
 	_setup_day()
 
 
@@ -114,6 +127,9 @@ func apply_san_damage(amount: int) -> void:
 	san_value = max(0, san_value - amount)
 	san_changed.emit(san_value)
 	if san_value <= 0:
+		# SAN 0 = ランの終わり。ストーリーの進行中セーブを消す
+		if game_mode == MODE_STORY:
+			SaveManager.clear_story_run()
 		game_over.emit()
 
 
