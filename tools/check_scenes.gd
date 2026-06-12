@@ -5,6 +5,7 @@ func _initialize() -> void:
 		"res://scenes/title_screen/title_screen.tscn",
 		"res://scenes/settings/settings.tscn",
 		"res://scenes/main_game/main_game.tscn",
+		"res://scenes/game_over/game_over.tscn",
 	]
 	var failed := false
 	for path in scenes:

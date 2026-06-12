@@ -22,7 +22,7 @@
 - `SaveManager.story_run_day` / `story_run_san` を追加。**Day開始時に保存**、ゲームオーバー・全クリアで消去
 - `GameManager.continue_story()` 追加（保存値から再開）
 - タイトルに「続きから（Day N）」ボタン（ラン有時のみ表示）。同時にストーリーボタンを「最初から」表記に変更し上書きを明示
-- **仕様メモ**: 死亡＝ラン消去（Day 1からやり直し）。「同じDayから再挑戦」案はPhase 3で要相談
+- **仕様メモ**: 死亡＝ラン消去だが、広告視聴で同じDayから再挑戦可能（下記「広告リトライ」参照）
 
 #### 設定画面（新規 `scenes/settings/`）
 - BGM/SE音量スライダー（0〜100%・5%刻み）。変更は即時反映、退出時に `save.json` へ保存
@@ -33,6 +33,22 @@
 - メインゲーム下部に「中断」ボタン追加。`_paused` フラグで `_process`（タイマー）と `_input` を停止
 - 暗転オーバーレイ（z_index=25）で「再開」「タイトルへ戻る」
 - 中断時は選択/ドラッグ中ピースを `_restore_to_tray()` で戻してから停止
+
+### 広告リトライ（死亡時の継続・収益化）※ユーザー判断により当日追加実装
+
+- **仕様決定**: 死亡時は「広告を見て同じDayからSAN全快で再挑戦」（収益化を兼ねる）
+- 死亡フロー: SAN 0 → ラン消去 → ゲームオーバー画面に「広告を見て Day N から再挑戦」ボタン
+  （ストーリーモードのみ表示）→ 視聴完了 → `save_story_run(day, 100)` → `continue_story()` → day_intro
+- 広告を見ずに「タイトルに戻る」→ ランは消えたまま（Day 1から）。広告ゲートが意味を持つ構造
+- **`autoload/ad_manager.gd` 新規**（AutoLoad登録済み）:
+  - 現状は**スタブ実装**（5秒カウントダウンのデモ広告画面 → 「閉じて報酬を受け取る」）
+  - 差し替えポイントは `is_rewarded_ad_available()` / `show_rewarded(callback)` の2関数のみ
+- **AdMob本接続に必要なもの（次回以降）**:
+  1. AdMobアカウント作成 → アプリID・リワード広告ユニットID取得
+  2. Poing Studios製 Godot AdMob Plugin の AAR を `godot_android_build/libs` へ追加
+  3. `AndroidManifest.xml` に `com.google.android.gms.ads.APPLICATION_ID` meta-data 追加
+  4. `ad_manager.gd` の2関数を実SDK呼び出しに差し替え
+  5. 注意: Web版はAdMob非対応。Web収益化は別途（AdSense for Games等）の検討が必要
 
 ### ビルド環境の復旧（重要）
 
@@ -96,9 +112,9 @@
 - 現状 `audio_manager.gd` は SE プレイヤー1本 → 連続配置で音が切れる
 - 3〜4本の `AudioStreamPlayer` をローテーション
 
-#### 3-5. （要相談）死亡時の継続仕様
-- 現状: ゲームオーバーで「続きから」消去（Day 1 から）
-- 代案: 同じ Day から SAN 全快で再挑戦可（カジュアル向け）。ユーザーの好み確認
+#### 3-5. 死亡時の継続仕様 → ✅解決済み（2026-06-12当日実装）
+- 広告視聴で同じDayからSAN全快再挑戦（収益化兼用・スタブ広告）。本節の作業は
+  AdMob本接続のみ残（上記「広告リトライ」のチェックリスト参照）
 
 #### クリーンアップ（Phase 3 と同時に）
 - 未使用: `can_merge` / `merge_recipe.gd`、`StageData.san_threshold`、`_rotate_active()`、

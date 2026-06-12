@@ -23,6 +23,7 @@ AudioManager="*res://autoload/audio_manager.gd"
 SaveManager="*res://autoload/save_manager.gd"
 ScenarioManager="*res://autoload/scenario_manager.gd"
 UIFont="*res://autoload/ui_font.gd"
+AdManager="*res://autoload/ad_manager.gd"
 
 [display]
 
@@ -30,5 +31,4 @@ window/size/viewport_width=1080
 window/size/viewport_height=2400
 window/size/initial_position_type=0
 window/stretch/mode="canvas_items"
-window/stretch/aspect="keep"
 window/handheld/orientation=1
