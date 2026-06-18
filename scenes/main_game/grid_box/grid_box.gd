@@ -8,11 +8,10 @@ const MAX_BOX_SIZE: int = 1000
 const MIN_BOX_SIZE: int = 680
 const BOX_SIDE_PADDING: int = 56
 
-const GRID_COLOR: Color = Color(0.3, 0.3, 0.35, 1.0)
-const BLOCKED_COLOR: Color = Color(0.0, 0.0, 0.0, 0.55)
-const BORDER_COLOR: Color = Color(0.74, 0.52, 0.24, 0.72)
-const EMPTY_CELL_COLOR: Color = Color(1.0, 0.18, 0.12, 0.10)
-const EMPTY_CELL_EDGE_COLOR: Color = Color(1.0, 0.6, 0.45, 0.18)
+const BLOCKED_COLOR: Color = Color(0.0, 0.0, 0.0, 0.78)
+const BORDER_COLOR: Color = Color(0.95, 0.74, 0.38, 0.86)
+const EMPTY_CELL_COLOR: Color = Color(0.015, 0.012, 0.014, 0.58)
+const EMPTY_CELL_EDGE_COLOR: Color = Color(1.0, 0.32, 0.20, 0.58)
 const PREVIEW_OK_COLOR: Color = Color(0.36, 1.0, 0.48, 0.46)
 const PREVIEW_NG_COLOR: Color = Color(1.0, 0.12, 0.12, 0.50)
 const GLOW_OK_COLOR: Color = Color(1.0, 0.25, 0.12, 0.42)
@@ -279,12 +278,14 @@ func _draw_background() -> void:
 	for cell in blocked_cells:
 		var rect := _cell_rect(cell, 0.0)
 		draw_rect(rect, BLOCKED_COLOR)
-		var p1 := Vector2(rect.position.x + 8, rect.position.y + 8)
-		var p2 := Vector2(rect.end.x - 8, rect.end.y - 8)
-		var p3 := Vector2(rect.end.x - 8, rect.position.y + 8)
-		var p4 := Vector2(rect.position.x + 8, rect.end.y - 8)
-		draw_line(p1, p2, Color(0.5, 0.3, 0.1, 0.8), 2.0)
-		draw_line(p3, p4, Color(0.5, 0.3, 0.1, 0.8), 2.0)
+		draw_rect(rect.grow(-2.0), Color(0.96, 0.14, 0.08, 0.80), false, 3.0)
+		var mark_inset: float = maxf(8.0, float(cell_size) * 0.13)
+		var p1 := Vector2(rect.position.x + mark_inset, rect.position.y + mark_inset)
+		var p2 := Vector2(rect.end.x - mark_inset, rect.end.y - mark_inset)
+		var p3 := Vector2(rect.end.x - mark_inset, rect.position.y + mark_inset)
+		var p4 := Vector2(rect.position.x + mark_inset, rect.end.y - mark_inset)
+		draw_line(p1, p2, Color(0.98, 0.18, 0.08, 0.90), 3.0)
+		draw_line(p3, p4, Color(0.98, 0.18, 0.08, 0.90), 3.0)
 
 
 func _draw_empty_cells() -> void:
@@ -295,44 +296,42 @@ func _draw_empty_cells() -> void:
 				continue
 			var rect := _cell_rect(cell, 5.0)
 			draw_rect(rect, EMPTY_CELL_COLOR)
-			draw_rect(rect, EMPTY_CELL_EDGE_COLOR, false, 1.0)
+			draw_rect(rect, EMPTY_CELL_EDGE_COLOR, false, 1.8)
+			draw_rect(rect.grow(-max(5.0, float(cell_size) * 0.09)),
+					Color(1.0, 0.62, 0.44, 0.14), false, 1.0)
 
 
 func _draw_placed_items() -> void:
-	const PLACED_FILL_COLOR := Color(0.60, 0.60, 0.62, 0.50)
-	const PLACED_BORDER_COLOR := Color(0.35, 0.35, 0.38, 0.90)
-	const PLACED_TEX_MODULATE := Color(0.72, 0.72, 0.75, 0.55)
+	const PLACED_BORDER_DARK := Color(0.02, 0.02, 0.025, 1.0)
+	const PLACED_BORDER_LIGHT := Color(1.0, 0.82, 0.46, 0.95)
 	for entry in _placed_entries:
 		var item: ItemData = entry["item"]
 		var origin: Vector2i = entry["origin"]
 		var shape: Array[Vector2i] = entry["shape"]
+		var bb := item.get_bounding_box(shape)
 		var pulse_scale := 1.0
 		if item == _placed_pulse_item and origin == _placed_pulse_origin:
 			pulse_scale = 1.0 - 0.08 * _placed_pulse
-
-		if item.texture:
-			var bb := item.get_bounding_box(shape)
-			var full_rect := Rect2(
-				_grid_offset + Vector2(origin.x * cell_size, origin.y * cell_size),
-				Vector2(bb.x * cell_size, bb.y * cell_size)
-			)
-			if pulse_scale != 1.0:
-				full_rect = _scaled_rect(full_rect, pulse_scale)
-			draw_texture_rect(item.texture, full_rect, false, PLACED_TEX_MODULATE)
 
 		for cell in shape:
 			var world_cell := Vector2i(origin.x + cell.x, origin.y + cell.y)
 			var rect := _cell_rect(world_cell, 1.0)
 			if pulse_scale != 1.0:
 				rect = _scaled_rect(rect, pulse_scale)
-			if not item.texture:
-				draw_rect(rect, PLACED_FILL_COLOR)
-			draw_rect(rect, PLACED_BORDER_COLOR, false, 1.5)
+			var cell_fill := Color(item.color.r, item.color.g, item.color.b, 0.38)
+			draw_rect(rect, Color(0.0, 0.0, 0.0, 0.48))
+			draw_rect(rect.grow(-4.0), cell_fill)
+			if item.texture:
+				_draw_texture_cell(item.texture, cell, rect.grow(-6.0), bb,
+						Color(1.0, 1.0, 1.0, 0.96))
+			draw_rect(rect, PLACED_BORDER_DARK, false, 4.0)
+			draw_rect(rect.grow(-3.0), PLACED_BORDER_LIGHT, false, 2.0)
 
 			for d in range(item.danger):
-				var dot_x := rect.position.x + 10.0 + d * 14.0
-				var dot_y := rect.position.y + 10.0
-				draw_circle(Vector2(dot_x, dot_y), 5.0, Color(1, 0.3, 0.3, 0.9))
+				var dot_radius: float = clampf(float(cell_size) * 0.045, 4.0, 8.0)
+				var dot_x: float = rect.position.x + dot_radius * 2.0 + d * dot_radius * 2.6
+				var dot_y: float = rect.position.y + dot_radius * 2.0
+				draw_circle(Vector2(dot_x, dot_y), dot_radius, Color(1, 0.18, 0.12, 0.95))
 
 
 func _draw_preview() -> void:
@@ -353,7 +352,7 @@ func _draw_preview() -> void:
 
 		var rect := _cell_rect(world_cell, 2.0)
 		draw_rect(rect, color)
-		draw_rect(rect, border, false, 3.0)
+		draw_rect(rect, border, false, 4.0)
 
 
 func _draw_grid_lines() -> void:
@@ -362,11 +361,13 @@ func _draw_grid_lines() -> void:
 	# 縦線
 	for col in range(grid_width + 1):
 		var x := _grid_offset.x + col * cell_size
-		draw_line(Vector2(x, _grid_offset.y), Vector2(x, _grid_offset.y + grid_h), BORDER_COLOR, 1.5)
+		draw_line(Vector2(x, _grid_offset.y), Vector2(x, _grid_offset.y + grid_h), BORDER_COLOR, 2.0)
 	# 横線
 	for row in range(grid_height + 1):
 		var y := _grid_offset.y + row * cell_size
-		draw_line(Vector2(_grid_offset.x, y), Vector2(_grid_offset.x + grid_w, y), BORDER_COLOR, 1.5)
+		draw_line(Vector2(_grid_offset.x, y), Vector2(_grid_offset.x + grid_w, y), BORDER_COLOR, 2.0)
+	var bounds := Rect2(_grid_offset, Vector2(grid_w, grid_h))
+	draw_rect(bounds, Color(1.0, 0.86, 0.46, 0.96), false, 4.0)
 
 
 func _draw_board_glow() -> void:
@@ -389,6 +390,18 @@ func _cell_rect(cell: Vector2i, inset: float) -> Rect2:
 func _scaled_rect(rect: Rect2, scale_value: float) -> Rect2:
 	var new_size := rect.size * scale_value
 	return Rect2(rect.position + (rect.size - new_size) * 0.5, new_size)
+
+
+func _draw_texture_cell(texture: Texture2D, shape_cell: Vector2i, dest_rect: Rect2, bb: Vector2i, modulate: Color) -> void:
+	if bb.x <= 0 or bb.y <= 0:
+		return
+	var tex_size := texture.get_size()
+	var src_size := Vector2(tex_size.x / float(bb.x), tex_size.y / float(bb.y))
+	var src_rect := Rect2(
+		Vector2(shape_cell.x * src_size.x, shape_cell.y * src_size.y),
+		src_size
+	)
+	draw_texture_rect_region(texture, dest_rect, src_rect, modulate)
 
 
 # ─── マウス（クリック配置モード用） ────────────────────────────

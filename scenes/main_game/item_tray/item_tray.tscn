@@ -3,13 +3,23 @@
 [ext_resource type="Script" path="res://scenes/main_game/item_tray/item_tray.gd" id="1_itemtray"]
 
 [node name="ItemTray" type="ScrollContainer"]
-custom_minimum_size = Vector2(0, 400)
+custom_minimum_size = Vector2(0, 870)
 size_flags_horizontal = 3
-horizontal_scroll_mode = 1
-vertical_scroll_mode = 0
+horizontal_scroll_mode = 0
+vertical_scroll_mode = 1
 script = ExtResource("1_itemtray")
 
-[node name="HBoxContainer" type="HBoxContainer" parent="."]
+[node name="MarginContainer" type="MarginContainer" parent="."]
 layout_mode = 2
-size_flags_vertical = 3
-theme_override_constants/separation = 16
+size_flags_horizontal = 3
+theme_override_constants/margin_left = 36
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 36
+theme_override_constants/margin_bottom = 16
+
+[node name="GridContainer" type="GridContainer" parent="MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/h_separation = 18
+theme_override_constants/v_separation = 18
+columns = 3

@@ -4,8 +4,8 @@ extends Control
 ## アイテムの形状を描画し、ドラッグ開始シグナルを発行するコンポーネント。
 ## トレイ内・ドラッグゴースト・図鑑プレビューのいずれでも使用する。
 
-const CELL_SIZE: int = 120
-const BORDER_WIDTH: float = 1.5
+const DEFAULT_CELL_SIZE: int = 120
+const MIN_CELL_SIZE: int = 32
 
 @export var item_data: ItemData = null:
 	set(v):
@@ -21,6 +21,11 @@ var current_shape: Array[Vector2i] = []
 var is_ghost: bool = false        # trueのときは半透明で描画
 var show_danger: bool = false     # danger数値を表示するか
 var is_selected: bool = false     # trueのとき選択ハイライトを描画
+var display_cell_size: int = DEFAULT_CELL_SIZE:
+	set(v):
+		display_cell_size = max(MIN_CELL_SIZE, v)
+		_recalculate_size()
+		queue_redraw()
 
 signal drag_started(item: ItemData, shape: Array[Vector2i], screen_pos: Vector2)
 signal item_clicked(item: ItemData, shape: Array[Vector2i])
@@ -43,10 +48,10 @@ func set_shape(shape: Array[Vector2i]) -> void:
 
 func _recalculate_size() -> void:
 	if item_data == null or current_shape.is_empty():
-		custom_minimum_size = Vector2(CELL_SIZE, CELL_SIZE)
+		custom_minimum_size = Vector2(display_cell_size, display_cell_size)
 		return
 	var bb := item_data.get_bounding_box(current_shape)
-	custom_minimum_size = Vector2(bb.x * CELL_SIZE, bb.y * CELL_SIZE)
+	custom_minimum_size = Vector2(bb.x * display_cell_size, bb.y * display_cell_size)
 	size = custom_minimum_size
 
 
@@ -56,49 +61,64 @@ func _draw() -> void:
 
 	var base_color := item_data.color
 	var fill_color := Color(base_color.r, base_color.g, base_color.b,
-			0.55 if is_ghost else 0.85)
-	var border_color := Color(base_color.r * 0.6, base_color.g * 0.6, base_color.b * 0.6,
-			0.7 if is_ghost else 1.0)
+			0.78 if is_ghost else 0.96)
+	var outer_border := Color(0.02, 0.02, 0.025, 0.90 if is_ghost else 1.0)
+	var inner_border := Color(1.0, 0.84, 0.45, 0.72 if is_ghost else 0.95)
+	var bb := item_data.get_bounding_box(current_shape)
+	var border_width: float = maxf(1.5, float(display_cell_size) * 0.045)
+	var inset: float = maxf(1.0, float(display_cell_size) * 0.025)
 
-	if item_data.texture:
-		var bb := item_data.get_bounding_box(current_shape)
-		var tex_alpha := 0.55 if is_ghost else 1.0
-		# テクスチャをバウンディングボックス全体に1枚描画（セルでマスクしない）
-		var full_rect := Rect2(Vector2.ZERO, Vector2(bb.x * CELL_SIZE, bb.y * CELL_SIZE))
-		draw_texture_rect(item_data.texture, full_rect, false, Color(1.0, 1.0, 1.0, tex_alpha))
-		for cell in current_shape:
-			var dest_rect := Rect2(
-				cell.x * CELL_SIZE + 1,
-				cell.y * CELL_SIZE + 1,
-				CELL_SIZE - 2,
-				CELL_SIZE - 2
-			)
-			draw_rect(dest_rect, border_color, false, BORDER_WIDTH)
-	else:
-		for cell in current_shape:
-			var rect := Rect2(
-				cell.x * CELL_SIZE + 1,
-				cell.y * CELL_SIZE + 1,
-				CELL_SIZE - 2,
-				CELL_SIZE - 2
-			)
-			draw_rect(rect, fill_color)
-			draw_rect(rect, border_color, false, BORDER_WIDTH)
+	for cell in current_shape:
+		var rect := Rect2(
+			cell.x * display_cell_size + inset,
+			cell.y * display_cell_size + inset,
+			display_cell_size - inset * 2.0,
+			display_cell_size - inset * 2.0
+		)
+		draw_rect(rect, Color(0.0, 0.0, 0.0, 0.34))
+		if item_data.texture:
+			_draw_texture_cell(item_data.texture, cell, rect.grow(-border_width), bb,
+					Color(1.0, 1.0, 1.0, 0.82 if is_ghost else 1.0))
+			draw_rect(rect, Color(base_color.r, base_color.g, base_color.b,
+					0.18 if is_ghost else 0.24))
+		else:
+			draw_rect(rect.grow(-border_width), fill_color)
+		draw_rect(rect, outer_border, false, border_width)
+		draw_rect(rect.grow(-border_width), inner_border, false, max(1.0, border_width * 0.55))
 
 	if show_danger and item_data.danger > 0:
-		var label_pos := Vector2(4, 4)
-		draw_string(ThemeDB.fallback_font, label_pos,
-				str(item_data.danger), HORIZONTAL_ALIGNMENT_LEFT, -1, 12,
-				Color.WHITE)
+		_draw_danger_badge()
 
 	if is_selected:
-		var bb := item_data.get_bounding_box(current_shape)
-		var outline := Rect2(-4, -4, bb.x * CELL_SIZE + 8, bb.y * CELL_SIZE + 8)
-		draw_rect(outline, Color(1.0, 0.85, 0.1, 0.9), false, 3.5)
+		var outline := Rect2(-5, -5, bb.x * display_cell_size + 10, bb.y * display_cell_size + 10)
+		draw_rect(outline, Color(1.0, 0.85, 0.1, 0.95), false, 4.0)
+
+
+func _draw_texture_cell(texture: Texture2D, shape_cell: Vector2i, dest_rect: Rect2, bb: Vector2i, modulate: Color) -> void:
+	if bb.x <= 0 or bb.y <= 0:
+		return
+	var tex_size := texture.get_size()
+	var src_size := Vector2(tex_size.x / float(bb.x), tex_size.y / float(bb.y))
+	var src_rect := Rect2(
+		Vector2(shape_cell.x * src_size.x, shape_cell.y * src_size.y),
+		src_size
+	)
+	draw_texture_rect_region(texture, dest_rect, src_rect, modulate)
+
+
+func _draw_danger_badge() -> void:
+	var font_size: int = maxi(18, int(float(display_cell_size) * 0.34))
+	var badge_size := Vector2(float(font_size) * 1.35, float(font_size) * 1.20)
+	var badge_rect := Rect2(Vector2(4, 4), badge_size)
+	draw_rect(badge_rect, Color(0.08, 0.0, 0.0, 0.86))
+	draw_rect(badge_rect, Color(1.0, 0.25, 0.18, 0.95), false, 1.5)
+	draw_string(ThemeDB.fallback_font, badge_rect.position + Vector2(6, badge_size.y - 6),
+			str(item_data.danger), HORIZONTAL_ALIGNMENT_LEFT, -1, font_size,
+			Color.WHITE)
 
 
 # ─── マウスイベント ─────────────────────────────────────────────
-var _drag_threshold: float = 6.0
+var _drag_threshold: float = 16.0
 var _mouse_down: bool = false
 var _mouse_down_pos: Vector2 = Vector2.ZERO
 var _dragging: bool = false

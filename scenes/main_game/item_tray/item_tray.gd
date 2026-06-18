@@ -1,23 +1,29 @@
 class_name ItemTray
 extends ScrollContainer
 
-## アイテムトレイ（横スクロール）。同一アイテムの複数表示に対応。
+## アイテムトレイ（3列グリッドの縦スクロール）。同一アイテムの複数表示に対応。
 
-@onready var hbox: HBoxContainer = $HBoxContainer
+const TRAY_COLUMNS: int = 3
+const TRAY_CELL_SIZE: int = 58
+const TRAY_SLOT_SIZE: Vector2 = Vector2(300, 196)
+
+@onready var grid: GridContainer = $MarginContainer/GridContainer
 
 signal item_drag_started(item: ItemData, shape: Array[Vector2i], screen_pos: Vector2)
 signal item_click_selected(item: ItemData, shape: Array[Vector2i])
 
-# 各エントリ: {item: ItemData, visual: ItemVisual, spacer: Control}
+# 各エントリ: {item: ItemData, visual: ItemVisual, slot: PanelContainer}
 var _item_entries: Array = []
 
 
 func _ready() -> void:
-	pass
+	horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
+	grid.columns = TRAY_COLUMNS
 
 
 func populate(items: Array[ItemData]) -> void:
-	for child in hbox.get_children():
+	for child in grid.get_children():
 		child.queue_free()
 	_item_entries.clear()
 	for item in items:
@@ -25,27 +31,45 @@ func populate(items: Array[ItemData]) -> void:
 
 
 func _add_item_visual(item: ItemData) -> void:
+	var slot := _create_slot()
 	var iv := ItemVisual.new()
 	iv.setup(item)
+	iv.display_cell_size = TRAY_CELL_SIZE
 	iv.show_danger = true
+	iv.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	iv.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	iv.drag_started.connect(_on_item_drag_started)
 	iv.item_clicked.connect(_on_item_clicked)
-	hbox.add_child(iv)
+	slot.add_child(iv)
+	grid.add_child(slot)
 
-	var spacer := Control.new()
-	spacer.custom_minimum_size = Vector2(8, 0)
-	hbox.add_child(spacer)
+	_item_entries.append({"item": item, "visual": iv, "slot": slot})
 
-	_item_entries.append({"item": item, "visual": iv, "spacer": spacer})
+
+func _create_slot() -> PanelContainer:
+	var slot := PanelContainer.new()
+	slot.custom_minimum_size = TRAY_SLOT_SIZE
+	slot.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	slot.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	slot.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.015, 0.014, 0.018, 0.70)
+	style.border_color = Color(0.72, 0.54, 0.30, 0.62)
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(6)
+	style.content_margin_left = 10
+	style.content_margin_top = 10
+	style.content_margin_right = 10
+	style.content_margin_bottom = 10
+	slot.add_theme_stylebox_override("panel", style)
+	return slot
 
 
 ## 同一アイテムが複数ある場合は最初の1つだけ削除する
 func remove_item(item: ItemData) -> void:
 	for i in range(_item_entries.size()):
 		if _item_entries[i]["item"] == item:
-			_item_entries[i]["visual"].queue_free()
-			_item_entries[i]["spacer"].queue_free()
+			_item_entries[i]["slot"].queue_free()
 			_item_entries.remove_at(i)
 			return
 
