@@ -2,6 +2,25 @@
 
 ---
 
+## 2026-06-26
+
+### Phase 3-1: danger を意味のある値にする（着手・完了）
+
+- **ダメージ計算変更**: 未配置アイテムのSANダメージ = `セル数 × danger`（旧: セル数のみ）。
+  `danger` 1〜5 が飾りでなくなり「危険物を優先収納」の判断が生まれる
+  - `game_manager.gd:calculate_total_san_damage()` — `rec.get("danger", 1)` を係数に。`maxi(1, danger)` で安全化
+  - `main_game.gd:_on_seal_pressed()` — records に `"danger": item.danger` を追加
+- **パズル画面のバッジ表示をダメージ値に変更**（`item_visual.gd:_draw_danger_badge()`）
+  - 旧: danger単体（例:4）を表示 → 実ダメージ（例:16）と食い違い「不具合に見える」とのフィードバック
+  - 新: `セル数 × danger` を表示。2桁対応でバッジ幅を桁数連動に
+- **バランス実測**: アイテムの danger は 1〜4（5は未使用）。藁人形(danger4・4セル)=16、呪い鏡(3・4セル)=12、
+  錆ナイフ(2・4セル)=8、奇妙な硬貨(1・1セル)=1。最大4倍で即死級ではなく調整余地あり
+- 検証: `check_scenes.gd` → ALL_OK。APK 124.8MB（PCK STORED）。Web gh-pages 反映済み
+- **注意**: ビルドスクリプト（build_pck.py/build_apk.py）と Gradleビルドdirのルートファイルが
+  またTemp掃除で消失していた → `build-android-apk` スキルの手順で android_source.zip から再展開・修正3点再適用
+
+---
+
 ## 2026-06-12
 
 全体評価 → 改善プラン策定 → Phase 1（バグ修正）＋ Phase 2（継続プレイ対応）を実装。

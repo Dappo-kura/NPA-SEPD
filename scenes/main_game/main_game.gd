@@ -393,7 +393,7 @@ func _on_seal_pressed() -> void:
 	# 未配置アイテムのSANダメージを計算
 	var records: Array = []
 	for item in GameManager.unplaced_items:
-		records.append({"item": item, "cell_count": item.shape.size()})
+		records.append({"item": item, "cell_count": item.shape.size(), "danger": item.danger})
 
 	_pending_damage = GameManager.calculate_total_san_damage(records)
 	GameManager.apply_san_damage(_pending_damage)

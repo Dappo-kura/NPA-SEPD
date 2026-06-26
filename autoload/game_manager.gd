@@ -139,13 +139,14 @@ func heal_san(amount: int) -> void:
 
 
 ## グリッドに残った未封印アイテムのSANダメージを計算する
-## 1セル未配置 = 1ダメージ
-## items: Array of {item: ItemData, cell_count: int}
+## 未配置1アイテムのダメージ = セル数 × danger（危険物ほど重い罰）
+## items: Array of {item: ItemData, cell_count: int, danger: int}
 func calculate_total_san_damage(item_records: Array) -> int:
 	var total := 0
 	for rec in item_records:
 		var cell_count: int = rec["cell_count"]
-		total += cell_count
+		var danger: int = rec.get("danger", 1)
+		total += cell_count * maxi(1, danger)
 	return total
 
 

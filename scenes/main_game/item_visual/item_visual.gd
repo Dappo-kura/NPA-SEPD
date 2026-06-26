@@ -107,13 +107,18 @@ func _draw_texture_cell(texture: Texture2D, shape_cell: Vector2i, dest_rect: Rec
 
 
 func _draw_danger_badge() -> void:
+	# 未収納時のSANダメージ（= セル数 × danger）を表示する。
+	# danger単体ではなく実ダメージ値にすることで盤面の損失が直感的に分かる。
+	var damage: int = item_data.shape.size() * maxi(1, item_data.danger)
+	var label := str(damage)
 	var font_size: int = maxi(18, int(float(display_cell_size) * 0.34))
-	var badge_size := Vector2(float(font_size) * 1.35, float(font_size) * 1.20)
+	var badge_size := Vector2(float(font_size) * (0.70 + 0.55 * label.length()),
+			float(font_size) * 1.20)
 	var badge_rect := Rect2(Vector2(4, 4), badge_size)
 	draw_rect(badge_rect, Color(0.08, 0.0, 0.0, 0.86))
 	draw_rect(badge_rect, Color(1.0, 0.25, 0.18, 0.95), false, 1.5)
 	draw_string(ThemeDB.fallback_font, badge_rect.position + Vector2(6, badge_size.y - 6),
-			str(item_data.danger), HORIZONTAL_ALIGNMENT_LEFT, -1, font_size,
+			label, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size,
 			Color.WHITE)
 
 
