@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://gavmefwqsyku"]
+[gd_scene load_steps=11 format=3 uid="uid://gavmefwqsyku"]
 
 [ext_resource type="Script" uid="uid://bht2v08uvua63" path="res://scenes/main_game/main_game.gd" id="1_maingame"]
 [ext_resource type="PackedScene" path="res://scenes/main_game/hud/hud.tscn" id="2_hud"]
@@ -9,6 +9,7 @@
 [ext_resource type="PackedScene" uid="uid://jumpscare001" path="res://scenes/jump_scare/jump_scare.tscn" id="7_jumpscare"]
 [ext_resource type="Texture2D" uid="uid://bpg80slnnx6r" path="res://resources/puzzle_bg.png" id="8_puzzlebg"]
 [ext_resource type="PackedScene" uid="uid://kaiki_still001" path="res://scenes/kaiki_still/kaiki_still.tscn" id="9_kaikistill"]
+[ext_resource type="PackedScene" path="res://scenes/main_game/anomaly_director/anomaly_director.tscn" id="10_anomaly"]
 
 [node name="MainGame" type="Control"]
 layout_mode = 3
@@ -79,9 +80,29 @@ size_flags_vertical = 3
 [node name="GridBox" parent="VBoxContainer/GridArea/GridCenter" instance=ExtResource("4_gridbox")]
 layout_mode = 2
 
+[node name="GuideLabel" type="Label" parent="VBoxContainer"]
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75, 0.92, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 38
+text = "証拠品をタップして選ぼう"
+horizontal_alignment = 1
+autowrap_mode = 3
+
 [node name="ItemTray" parent="VBoxContainer" instance=ExtResource("3_itemtray")]
 layout_mode = 2
 size_flags_vertical = 3
+
+[node name="SealInfoLabel" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.55, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 36
+text = "未収納 0個"
+horizontal_alignment = 1
 
 [node name="BottomArea" type="MarginContainer" parent="VBoxContainer"]
 layout_mode = 2
@@ -127,6 +148,9 @@ z_index = 10
 layout_mode = 1
 anchors_preset = 0
 mouse_filter = 2
+
+[node name="AnomalyDirector" parent="." instance=ExtResource("10_anomaly")]
+layout_mode = 1
 
 [node name="KaikiStill" parent="." instance=ExtResource("9_kaikistill")]
 layout_mode = 1

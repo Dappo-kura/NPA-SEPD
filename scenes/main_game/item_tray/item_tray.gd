@@ -78,6 +78,16 @@ func restore_item(item: ItemData) -> void:
 	_add_item_visual(item)
 
 
+## 怪異演出などが参照する、現在トレイにある表示ノードの読み取り専用一覧
+func get_item_visuals() -> Array:
+	var visuals: Array = []
+	for entry in _item_entries:
+		var visual: ItemVisual = entry["visual"] as ItemVisual
+		if is_instance_valid(visual):
+			visuals.append(visual)
+	return visuals
+
+
 ## トレイ内のピースをその場で回転する
 func rotate_item(item: ItemData) -> void:
 	for entry in _item_entries:

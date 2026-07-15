@@ -16,6 +16,8 @@ const PREVIEW_OK_COLOR: Color = Color(0.36, 1.0, 0.48, 0.46)
 const PREVIEW_NG_COLOR: Color = Color(1.0, 0.12, 0.12, 0.50)
 const GLOW_OK_COLOR: Color = Color(1.0, 0.25, 0.12, 0.42)
 const GLOW_NG_COLOR: Color = Color(0.95, 0.05, 0.05, 0.55)
+const CURSED_WARN_COLOR: Color = Color(0.62, 0.16, 0.75, 1.0)
+const CURSED_WARN_DURATION: float = 3.0  # 呪いセル封鎖までの警告時間（秒）
 
 var cell_size: int = 100
 var _box_size: int = MAX_BOX_SIZE
@@ -46,6 +48,11 @@ var _placed_pulse_item: ItemData = null
 var _placed_pulse_origin: Vector2i = Vector2i(-999, -999)
 var _placed_pulse: float = 0.0
 
+## 途中出現した呪いセル（ステージ定義の blocked_cells とは別に追跡し、リセットで解除する）
+var _dynamic_cursed: Array[Vector2i] = []
+var _cursed_warning_cell: Vector2i = Vector2i(-1, -1)  # 封鎖予告中のセル（なければ -1,-1）
+var _cursed_warning_left: float = 0.0
+
 signal item_placed(item: ItemData, origin: Vector2i)
 signal item_rejected()
 
@@ -63,6 +70,9 @@ func setup(stage: StageData) -> void:
 	blocked_cells = stage.blocked_cells.duplicate()
 	cell_map.clear()
 	_placed_entries.clear()
+	_dynamic_cursed.clear()
+	_cursed_warning_cell = Vector2i(-1, -1)
+	_cursed_warning_left = 0.0
 	_preview_clear()
 	_update_size()
 	queue_redraw()
@@ -226,7 +236,10 @@ func get_empty_cell_count() -> int:
 	return count
 
 
-func add_cursed_cell() -> bool:
+## 呪いセルの封鎖予告を開始する（即封鎖せず、警告時間の経過後に確定する）
+func begin_cursed_warning() -> bool:
+	if _cursed_warning_cell.x >= 0:
+		return false  # 警告中は重ねて出さない
 	var empty_cells: Array[Vector2i] = []
 	for row in range(grid_height):
 		for col in range(grid_width):
@@ -235,11 +248,43 @@ func add_cursed_cell() -> bool:
 				empty_cells.append(cell)
 	if empty_cells.is_empty():
 		return false
-	var target := empty_cells[randi() % empty_cells.size()]
-	blocked_cells.append(target)
-	pulse_reject()
+	_cursed_warning_cell = empty_cells[randi() % empty_cells.size()]
+	_cursed_warning_left = CURSED_WARN_DURATION
 	queue_redraw()
 	return true
+
+
+## 警告の残り時間を進める（ポーズ・封印中は呼び出し側が止める）
+func tick_cursed_warning(delta: float) -> void:
+	if _cursed_warning_cell.x < 0:
+		return
+	_cursed_warning_left -= delta
+	if _cursed_warning_left <= 0.0:
+		_commit_cursed_cell()
+	else:
+		queue_redraw()
+
+
+func _commit_cursed_cell() -> void:
+	var cell := _cursed_warning_cell
+	_cursed_warning_cell = Vector2i(-1, -1)
+	_cursed_warning_left = 0.0
+	# 警告中にピースを置いて守られたセルは封鎖しない（次の間隔で再抽選）
+	if not cell_map.has(cell) and cell not in blocked_cells:
+		blocked_cells.append(cell)
+		_dynamic_cursed.append(cell)
+		pulse_reject()
+	queue_redraw()
+
+
+## 途中出現した呪いセル（と警告中のセル）を解除する。ステージ定義の封鎖マスは残す
+func clear_cursed_cells() -> void:
+	for cell in _dynamic_cursed:
+		blocked_cells.erase(cell)
+	_dynamic_cursed.clear()
+	_cursed_warning_cell = Vector2i(-1, -1)
+	_cursed_warning_left = 0.0
+	queue_redraw()
 
 
 func get_item_cell_count(item: ItemData) -> int:
@@ -262,6 +307,7 @@ func _draw() -> void:
 	_draw_background()
 	_draw_empty_cells()
 	_draw_placed_items()
+	_draw_cursed_warning()
 	_draw_preview()
 	_draw_grid_lines()
 	_draw_board_glow()
@@ -332,6 +378,16 @@ func _draw_placed_items() -> void:
 				var dot_x: float = rect.position.x + dot_radius * 2.0 + d * dot_radius * 2.6
 				var dot_y: float = rect.position.y + dot_radius * 2.0
 				draw_circle(Vector2(dot_x, dot_y), dot_radius, Color(1, 0.18, 0.12, 0.95))
+
+
+func _draw_cursed_warning() -> void:
+	if _cursed_warning_cell.x < 0:
+		return
+	var rect := _cell_rect(_cursed_warning_cell, 2.0)
+	# 残り時間に合わせてアルファを振動させ、封鎖が迫っていることを知らせる
+	var alpha := 0.22 + 0.34 * absf(sin(_cursed_warning_left * TAU))
+	draw_rect(rect, Color(CURSED_WARN_COLOR.r, CURSED_WARN_COLOR.g, CURSED_WARN_COLOR.b, alpha))
+	draw_rect(rect, Color(CURSED_WARN_COLOR.r, CURSED_WARN_COLOR.g, CURSED_WARN_COLOR.b, 0.9), false, 3.0)
 
 
 func _draw_preview() -> void:

@@ -22,6 +22,7 @@ func _ready() -> void:
 
 
 func play_bgm() -> void:
+	_bgm_player.pitch_scale = 1.0
 	if _bgm_player.playing:
 		return
 	var stream := load("res://resources/sound/npasepd_bgm.mp3") as AudioStreamMP3
@@ -31,7 +32,12 @@ func play_bgm() -> void:
 
 
 func stop_bgm() -> void:
+	_bgm_player.pitch_scale = 1.0
 	_bgm_player.stop()
+
+
+func set_bgm_pitch(p: float) -> void:
+	_bgm_player.pitch_scale = clampf(p, 1.0, 1.1)
 
 
 func play_se(key: String) -> void:

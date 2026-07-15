@@ -12,10 +12,13 @@ extends Control
 @onready var resume_button: Button = $PauseOverlay/CenterContainer/VBoxContainer/ResumeButton
 @onready var to_title_button: Button = $PauseOverlay/CenterContainer/VBoxContainer/ToTitleButton
 @onready var drag_ghost: ItemVisual = $DragGhost
+@onready var anomaly_director: AnomalyDirector = $AnomalyDirector
 @onready var kaiki_still: KaikiStill = $KaikiStill
 @onready var nightmare_event: NightmareEvent = $NightmareEvent
 @onready var jump_scare: JumpScare = $JumpScare
 @onready var hint_label: Label = $HintLabel
+@onready var guide_label: Label = $VBoxContainer/GuideLabel
+@onready var seal_info_label: Label = $VBoxContainer/SealInfoLabel
 
 # ─── 状態機械 ─────────────────────────────────────────────────
 enum State { IDLE, DRAGGING, CLICK_TO_PLACE, SEALED }
@@ -36,6 +39,9 @@ var _active_shape: Array[Vector2i] = []
 # DRAGGING専用
 var _drag_screen_offset: Vector2 = Vector2.ZERO
 var _drag_lift_offset: Vector2 = Vector2(0.0, 150.0)
+
+# 初見ガイド（Day 1のみ）: 一度でも配置に成功したか
+var _guide_placed_once := false
 
 # ─── タイマー ─────────────────────────────────────────────────
 var _time_limit: float = 0.0
@@ -109,6 +115,8 @@ func _init_from_game_manager() -> void:
 	item_tray.populate(GameManager.unplaced_items)
 	_start_timer()
 	_set_state(State.IDLE)
+	_update_seal_info()
+	_setup_guide()
 
 
 func _start_timer() -> void:
@@ -127,6 +135,8 @@ func _on_day_changed(_day: int) -> void:
 	item_tray.populate(GameManager.unplaced_items)
 	_start_timer()
 	_set_state(State.IDLE)
+	_update_seal_info()
+	_setup_guide()
 
 
 # ─── 入力処理 ─────────────────────────────────────────────────
@@ -143,6 +153,8 @@ func _input(event: InputEvent) -> void:
 func _process(delta: float) -> void:
 	if _paused:
 		return  # タイマー・プレビュー更新を止める
+	if _state != State.SEALED:
+		anomaly_director.tick(delta, _current_tension())
 	match _state:
 		State.DRAGGING:
 			_update_drag_ghost()
@@ -155,10 +167,14 @@ func _process(delta: float) -> void:
 		var remaining := hud.tick(delta)
 
 		# 呪われたセル: 時間が半分以下になったら定期出現
-		if hud.get_time_ratio() < 0.5:
+		# ストーリーモードでは初の時間制限ステージ（Day 3）を公平に遊ばせるため Day 4 以降のみ
+		var curse_enabled: bool = GameManager.game_mode != GameManager.MODE_STORY \
+				or GameManager.current_day >= 4
+		if curse_enabled and hud.get_time_ratio() < 0.5:
+			grid_box.tick_cursed_warning(delta)
 			_cursed_cell_timer -= delta
 			if _cursed_cell_timer <= 0.0:
-				grid_box.add_cursed_cell()
+				grid_box.begin_cursed_warning()
 				_cursed_cell_timer = _cursed_cell_interval
 
 		# タイムアップ → 強制封印
@@ -168,6 +184,12 @@ func _process(delta: float) -> void:
 			_restore_to_tray()
 			jump_scare.trigger()
 			_on_seal_pressed()
+
+
+func _current_tension() -> float:
+	if _time_limit <= 0.0:
+		return 0.0
+	return clampf((0.6 - hud.get_time_ratio()) / 0.6, 0.0, 1.0)
 
 
 func _handle_input_dragging(event: InputEvent) -> void:
@@ -252,6 +274,7 @@ func _on_tray_click_selected(item: ItemData, shape: Array[Vector2i]) -> void:
 	# ピースはトレイに残したまま選択状態にする（配置時に除去）
 	item_tray.select_item(item)
 	_set_state(State.CLICK_TO_PLACE)
+	_guide_on_selected()
 
 
 # ─── 配置 ─────────────────────────────────────────────────────
@@ -274,6 +297,8 @@ func _try_place_on_grid(grid_local: Vector2) -> void:
 		GameManager.carried_items.append(placing_item)
 		drag_ghost.visible = false
 		_set_state(State.IDLE)
+		_update_seal_info()
+		_guide_on_placed()
 
 
 func _on_grid_item_placed(_item: ItemData, _origin: Vector2i) -> void:
@@ -287,7 +312,13 @@ func _on_grid_item_placed(_item: ItemData, _origin: Vector2i) -> void:
 func _on_grid_item_rejected() -> void:
 	if OS.get_name() == "Android":
 		Input.vibrate_handheld(60)
+	# ジャンプスケアはホラーの核となる演出として維持する（人間ディレクター指示）
 	jump_scare.trigger()
+	anomaly_director.on_mistake()
+	_show_hint("そこには置けない")
+	# クリック配置中は選択を維持し、そのまま別の場所を試せるようにする
+	if _state == State.CLICK_TO_PLACE:
+		return
 	_restore_to_tray()
 
 
@@ -305,6 +336,8 @@ func _restore_to_tray() -> void:
 	_active_item = null
 	_active_shape = []
 	_set_state(State.IDLE)
+	_update_seal_info()
+	_guide_on_restored()
 
 
 # ─── 回転 ─────────────────────────────────────────────────────
@@ -334,6 +367,7 @@ func _on_reset_pressed() -> void:
 		return
 
 	AudioManager.play_se("enter")
+	anomaly_director.stop_all()
 
 	# 手持ちアイテムを破棄
 	_active_item = null
@@ -341,8 +375,9 @@ func _on_reset_pressed() -> void:
 	drag_ghost.visible = false
 	grid_box.clear_preview()
 
-	# グリッドをクリア
+	# グリッドをクリア（途中出現した呪いセルも解除。ステージ定義の封鎖マスは残る）
 	grid_box.clear_all_items()
+	grid_box.clear_cursed_cells()
 	GameManager.carried_items.clear()
 
 	# ステージの初期アイテムからトレイを再構築（追跡ではなくソースから直接復元）
@@ -354,6 +389,8 @@ func _on_reset_pressed() -> void:
 	item_tray.populate(GameManager.unplaced_items)
 
 	_set_state(State.IDLE)
+	_update_seal_info()
+	_setup_guide()
 
 
 # ─── ポーズ（中断） ──────────────────────────────────────────
@@ -375,6 +412,7 @@ func _on_resume_pressed() -> void:
 func _on_to_title_pressed() -> void:
 	# ストーリーの進行はDay開始時にセーブ済みなのでそのまま戻れる
 	AudioManager.play_se("enter")
+	anomaly_director.stop_all()
 	get_tree().change_scene_to_file("res://scenes/title_screen/title_screen.tscn")
 
 
@@ -383,6 +421,7 @@ func _on_seal_pressed() -> void:
 	if _state == State.SEALED:
 		return
 	_set_state(State.SEALED)
+	anomaly_director.stop_all()
 
 	AudioManager.play_se("seal")
 
@@ -391,12 +430,9 @@ func _on_seal_pressed() -> void:
 		GameManager.heal_san(10)
 
 	# 未配置アイテムのSANダメージを計算
-	var records: Array = []
-	for item in GameManager.unplaced_items:
-		records.append({"item": item, "cell_count": item.shape.size(), "danger": item.danger})
-
-	_pending_damage = GameManager.calculate_total_san_damage(records)
+	_pending_damage = _predicted_seal_damage()
 	GameManager.apply_san_damage(_pending_damage)
+	guide_label.visible = false
 
 	# ナイトメアテキストを準備（怪異スチル後に nightmare_event へ渡す）
 	_pending_nightmare_text = ""
@@ -434,6 +470,65 @@ func _on_nightmare_dismissed() -> void:
 		# ストーリーモードでゲームが続く場合は day_intro へ
 		if not _game_just_cleared and GameManager.game_mode == GameManager.MODE_STORY:
 			get_tree().change_scene_to_file("res://scenes/day_intro/day_intro.tscn")
+
+
+# ─── 封印情報表示 ────────────────────────────────────────────
+## 今封印した場合のSANダメージ（封印処理と表示更新の共通ロジック）
+func _predicted_seal_damage() -> int:
+	var records: Array = []
+	for item in GameManager.unplaced_items:
+		records.append({"item": item, "cell_count": item.shape.size(), "danger": item.danger})
+	return GameManager.calculate_total_san_damage(records)
+
+
+func _update_seal_info() -> void:
+	var count := GameManager.unplaced_items.size()
+	if count == 0:
+		seal_info_label.text = "封印できる！"
+		seal_info_label.add_theme_color_override("font_color", Color(0.45, 1.0, 0.55))
+	else:
+		seal_info_label.text = "未収納 %d個 ／ 封印すると SAN −%d" % [count, _predicted_seal_damage()]
+		seal_info_label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.55))
+
+
+# ─── 初見ガイド（ストーリーDay 1のみ） ───────────────────────
+func _is_guide_day() -> bool:
+	return GameManager.game_mode == GameManager.MODE_STORY and GameManager.current_day == 1
+
+
+func _setup_guide() -> void:
+	_guide_placed_once = false
+	guide_label.visible = _is_guide_day()
+	if guide_label.visible:
+		guide_label.text = "証拠品をタップして選ぼう"
+
+
+func _guide_on_selected() -> void:
+	if _is_guide_day() and not GameManager.unplaced_items.is_empty():
+		guide_label.text = "もう一度タップで回転 ／ 箱をタップで収納"
+		guide_label.visible = true
+
+
+func _guide_on_placed() -> void:
+	if not _is_guide_day():
+		return
+	_guide_placed_once = true
+	if GameManager.unplaced_items.is_empty():
+		guide_label.visible = false  # 以降は「封印できる！」表示が導線を引き継ぐ
+	else:
+		guide_label.text = "全て収納したら『封印する』を押そう"
+		guide_label.visible = true
+
+
+func _guide_on_restored() -> void:
+	if not _is_guide_day():
+		return
+	if GameManager.unplaced_items.is_empty():
+		guide_label.visible = false
+		return
+	guide_label.text = "全て収納したら『封印する』を押そう" if _guide_placed_once \
+			else "証拠品をタップして選ぼう"
+	guide_label.visible = true
 
 
 # ─── ゲーム終了 ───────────────────────────────────────────────

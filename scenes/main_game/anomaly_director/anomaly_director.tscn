@@ -1,0 +1,43 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scenes/main_game/anomaly_director/anomaly_director.gd" id="1_director"]
+[ext_resource type="Shader" path="res://scenes/main_game/anomaly_director/anomaly_overlay.gdshader" id="2_shader"]
+[ext_resource type="Texture2D" path="res://resources/anomaly/ghost_hand.svg" id="3_hand"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_anomaly"]
+shader = ExtResource("2_shader")
+shader_parameter/tension = 0.0
+shader_parameter/effect_time = 0.0
+shader_parameter/flicker_spike = 0.0
+
+[node name="AnomalyDirector" type="Control"]
+z_index = 12
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_director")
+
+[node name="Vignette" type="ColorRect" parent="."]
+material = SubResource("ShaderMaterial_anomaly")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(1, 1, 1, 1)
+
+[node name="GhostHand" type="TextureRect" parent="."]
+visible = false
+custom_minimum_size = Vector2(360, 540)
+offset_right = 360.0
+offset_bottom = 540.0
+mouse_filter = 2
+texture = ExtResource("3_hand")
+expand_mode = 1
+stretch_mode = 5

@@ -21,6 +21,14 @@ var current_shape: Array[Vector2i] = []
 var is_ghost: bool = false        # trueのときは半透明で描画
 var show_danger: bool = false     # danger数値を表示するか
 var is_selected: bool = false     # trueのとき選択ハイライトを描画
+var glitch_amount: float = 0.0:
+	set(v):
+		glitch_amount = clampf(v, 0.0, 1.0)
+		queue_redraw()
+var glitch_seed: float = 0.0:
+	set(v):
+		glitch_seed = v
+		queue_redraw()
 var display_cell_size: int = DEFAULT_CELL_SIZE:
 	set(v):
 		display_cell_size = max(MIN_CELL_SIZE, v)
@@ -59,6 +67,12 @@ func _draw() -> void:
 	if item_data == null or current_shape.is_empty():
 		return
 
+	if glitch_amount > 0.0:
+		var shake_x := sin(glitch_seed * 12.9898) * 3.0 * glitch_amount
+		var shake_y := sin(glitch_seed * 78.233 + 1.7) * 3.0 * glitch_amount
+		var tilt := sin(glitch_seed * 37.719 + 4.1) * 0.05 * glitch_amount
+		draw_set_transform(Vector2(shake_x, shake_y), tilt)
+
 	var base_color := item_data.color
 	var fill_color := Color(base_color.r, base_color.g, base_color.b,
 			0.78 if is_ghost else 0.96)
@@ -83,6 +97,9 @@ func _draw() -> void:
 					0.18 if is_ghost else 0.24))
 		else:
 			draw_rect(rect.grow(-border_width), fill_color)
+		if glitch_amount > 0.0:
+			var sickly_color := Color(0.5, 0.7, 0.4, 0.48 * glitch_amount)
+			draw_rect(rect.grow(-border_width), sickly_color)
 		draw_rect(rect, outer_border, false, border_width)
 		draw_rect(rect.grow(-border_width), inner_border, false, max(1.0, border_width * 0.55))
 
@@ -92,6 +109,9 @@ func _draw() -> void:
 	if is_selected:
 		var outline := Rect2(-5, -5, bb.x * display_cell_size + 10, bb.y * display_cell_size + 10)
 		draw_rect(outline, Color(1.0, 0.85, 0.1, 0.95), false, 4.0)
+
+	if glitch_amount > 0.0:
+		draw_set_transform(Vector2.ZERO)
 
 
 func _draw_texture_cell(texture: Texture2D, shape_cell: Vector2i, dest_rect: Rect2, bb: Vector2i, modulate: Color) -> void:
