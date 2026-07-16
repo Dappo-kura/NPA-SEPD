@@ -130,9 +130,15 @@ func _draw_danger_badge() -> void:
 	# 未収納時のSANダメージ（= セル数 × danger）を表示する。
 	# danger単体ではなく実ダメージ値にすることで盤面の損失が直感的に分かる。
 	var damage: int = item_data.shape.size() * maxi(1, item_data.danger)
-	var label := str(damage)
+	var label := "SAN-" + str(damage)
 	var font_size: int = maxi(18, int(float(display_cell_size) * 0.34))
-	var badge_size := Vector2(float(font_size) * (0.70 + 0.55 * label.length()),
+	# ピース幅を超える場合はフォントを縮めてはみ出しを防ぐ
+	var bb := item_data.get_bounding_box(current_shape)
+	var available_width: float = float(bb.x * display_cell_size) - 8.0
+	var width_factor: float = 0.70 + 0.55 * label.length()
+	if float(font_size) * width_factor > available_width:
+		font_size = maxi(14, int(available_width / width_factor))
+	var badge_size := Vector2(float(font_size) * width_factor,
 			float(font_size) * 1.20)
 	var badge_rect := Rect2(Vector2(4, 4), badge_size)
 	draw_rect(badge_rect, Color(0.08, 0.0, 0.0, 0.86))

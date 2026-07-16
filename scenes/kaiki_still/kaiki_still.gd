@@ -60,17 +60,12 @@ func _process(delta: float) -> void:
 func _input(event: InputEvent) -> void:
 	if not visible or not _ready_to_dismiss:
 		return
-	var tapped := false
-	if event is InputEventScreenTouch:
-		if (event as InputEventScreenTouch).pressed:
-			tapped = true
-	elif event is InputEventMouseButton:
+	# タッチはエミュレートマウスとして届くため、マウスイベントのみで判定する
+	# （両方を拾うと実機で1タップが二重処理される）
+	if event is InputEventMouseButton:
 		var mb := event as InputEventMouseButton
 		if mb.button_index == MOUSE_BUTTON_LEFT and mb.pressed:
-			tapped = true
-
-	if tapped:
-		AudioManager.play_se("enter")
-		visible = false
-		set_process_input(false)
-		still_dismissed.emit()
+			AudioManager.play_se("enter")
+			visible = false
+			set_process_input(false)
+			still_dismissed.emit()

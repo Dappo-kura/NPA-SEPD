@@ -20,12 +20,73 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0, 0, 0, 1)
 
+[node name="HeaderTopLine" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 132.0
+offset_bottom = 134.0
+grow_horizontal = 2
+mouse_filter = 2
+color = Color(0.6, 0.1, 0.1, 0.8)
+
+[node name="HeaderBand" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 140.0
+offset_bottom = 300.0
+grow_horizontal = 2
+mouse_filter = 2
+color = Color(0.25, 0.02, 0.02, 1)
+
+[node name="ConfidentialLabel" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 150.0
+offset_bottom = 290.0
+grow_horizontal = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.85, 0.1, 0.1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 96
+text = "極　秘"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="HeaderBottomLine" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 306.0
+offset_bottom = 308.0
+grow_horizontal = 2
+mouse_filter = 2
+color = Color(0.6, 0.1, 0.1, 0.8)
+
+[node name="DeptLabel" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 330.0
+offset_bottom = 390.0
+grow_horizontal = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.6, 0.55, 0.5, 1)
+theme_override_font_sizes/font_size = 36
+text = "特殊事件対策課　保管記録"
+horizontal_alignment = 1
+vertical_alignment = 1
+
 [node name="ScrollContainer" type="ScrollContainer" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_top = 436.0
+offset_bottom = -220.0
 grow_horizontal = 2
 grow_vertical = 2
 horizontal_scroll_mode = 0
@@ -108,3 +169,19 @@ autowrap_mode = 3
 [node name="Spacer3" type="Control" parent="ScrollContainer/OuterMargin/Content"]
 custom_minimum_size = Vector2(0, 80)
 layout_mode = 2
+
+[node name="StartButton" type="Button" parent="."]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -320.0
+offset_top = -180.0
+offset_right = 320.0
+offset_bottom = -60.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_font_sizes/font_size = 44
+text = "捜査を開始する"

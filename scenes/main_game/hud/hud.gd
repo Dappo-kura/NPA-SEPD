@@ -5,9 +5,11 @@ extends VBoxContainer
 @onready var san_label: Label = $TopRow/SANLabel
 @onready var san_bar: ProgressBar = $TopRow/SANBar
 @onready var timer_bar: ProgressBar = $TimerBar
+@onready var timer_label: Label = $TimerLabel
 
 var _time_limit: float = 0.0
 var _time_remaining: float = 0.0
+var _pulse_time: float = 0.0
 
 
 func _ready() -> void:
@@ -43,10 +45,16 @@ func _on_san_changed(value: int) -> void:
 func setup_timer(limit: float) -> void:
 	_time_limit = limit
 	_time_remaining = limit
+	_pulse_time = 0.0
+	timer_label.scale = Vector2.ONE
+	timer_label.add_theme_color_override("font_color", Color.WHITE)
 	if limit <= 0.0:
 		timer_bar.visible = false
+		timer_label.visible = false
 		return
 	timer_bar.visible = true
+	timer_label.visible = true
+	timer_label.text = "残り %d秒" % ceili(limit)
 	timer_bar.max_value = limit
 	timer_bar.value = limit
 	timer_bar.modulate = Color(0.2, 0.8, 0.2)
@@ -58,6 +66,15 @@ func tick(delta: float) -> float:
 		return 1.0  # 制限なし
 	_time_remaining = max(0.0, _time_remaining - delta)
 	timer_bar.value = _time_remaining
+	timer_label.text = "残り %d秒" % ceili(_time_remaining)
+	if _time_remaining <= 10.0:
+		_pulse_time += delta
+		timer_label.add_theme_color_override("font_color", Color(1.0, 0.2, 0.15))
+		timer_label.pivot_offset = timer_label.size * 0.5
+		timer_label.scale = Vector2.ONE * (1.0 + 0.12 * absf(sin(_pulse_time * 5.0)))
+	else:
+		timer_label.add_theme_color_override("font_color", Color.WHITE)
+		timer_label.scale = Vector2.ONE
 	_update_timer_color()
 	return _time_remaining
 

@@ -7,9 +7,13 @@ const FONT_PATH := "res://resources/fonts/HGRME.TTC"
 @onready var evidence_label: Label = $ScrollContainer/OuterMargin/Content/EvidenceLabel
 @onready var overview_text: Label = $ScrollContainer/OuterMargin/Content/OverviewText
 @onready var note_text: Label = $ScrollContainer/OuterMargin/Content/NoteText
+@onready var confidential_label: Label = $ConfidentialLabel
+@onready var dept_label: Label = $DeptLabel
+@onready var start_button: Button = $StartButton
 
 func _ready() -> void:
 	_apply_font()
+	start_button.pressed.connect(_on_start_pressed)
 	var day := GameManager.current_day
 	var data := ScenarioManager.get_case_file(day)
 	var case_title: String = data.get("case_title", "")
@@ -28,16 +32,11 @@ func _apply_font() -> void:
 	evidence_label.add_theme_font_override("font", font)
 	overview_text.add_theme_font_override("font", font)
 	note_text.add_theme_font_override("font", font)
+	confidential_label.add_theme_font_override("font", font)
+	dept_label.add_theme_font_override("font", font)
+	start_button.add_theme_font_override("font", font)
 
-func _input(event: InputEvent) -> void:
-	var tapped := false
-	if event is InputEventScreenTouch:
-		if (event as InputEventScreenTouch).pressed:
-			tapped = true
-	elif event is InputEventMouseButton:
-		var mb := event as InputEventMouseButton
-		if mb.button_index == MOUSE_BUTTON_LEFT and mb.pressed:
-			tapped = true
-	if tapped:
-		AudioManager.play_se("enter")
-		get_tree().change_scene_to_file("res://scenes/main_game/main_game.tscn")
+# 全面タップでの即遷移は廃止（スクロール操作と衝突するため）。ボタンでのみ遷移する
+func _on_start_pressed() -> void:
+	AudioManager.play_se("enter")
+	get_tree().change_scene_to_file("res://scenes/main_game/main_game.tscn")

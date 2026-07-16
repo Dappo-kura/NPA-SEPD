@@ -4,7 +4,7 @@
 
 [node name="HUD" type="VBoxContainer"]
 script = ExtResource("1_hud")
-custom_minimum_size = Vector2(0, 140)
+custom_minimum_size = Vector2(0, 180)
 theme_override_constants/separation = 6
 
 [node name="TopRow" type="HBoxContainer" parent="."]
@@ -45,3 +45,10 @@ max_value = 100.0
 value = 100.0
 show_percentage = false
 visible = false
+
+[node name="TimerLabel" type="Label" parent="."]
+visible = false
+layout_mode = 2
+theme_override_font_sizes/font_size = 34
+text = "残り 0秒"
+horizontal_alignment = 1

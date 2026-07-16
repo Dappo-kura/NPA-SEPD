@@ -11,6 +11,10 @@ extends Control
 @onready var pause_overlay: Control = $PauseOverlay
 @onready var resume_button: Button = $PauseOverlay/CenterContainer/VBoxContainer/ResumeButton
 @onready var to_title_button: Button = $PauseOverlay/CenterContainer/VBoxContainer/ToTitleButton
+@onready var confirm_overlay: Control = $ConfirmOverlay
+@onready var confirm_label: Label = $ConfirmOverlay/CenterContainer/VBoxContainer/ConfirmLabel
+@onready var confirm_yes_button: Button = $ConfirmOverlay/CenterContainer/VBoxContainer/ButtonRow/ConfirmYesButton
+@onready var confirm_no_button: Button = $ConfirmOverlay/CenterContainer/VBoxContainer/ButtonRow/ConfirmNoButton
 @onready var drag_ghost: ItemVisual = $DragGhost
 @onready var anomaly_director: AnomalyDirector = $AnomalyDirector
 @onready var kaiki_still: KaikiStill = $KaikiStill
@@ -28,9 +32,14 @@ var _game_just_cleared := false
 var _pending_game_over := false
 var _paused := false
 
+# 確認オーバーレイ（リセット/未収納封印の誤操作防止）
+var _confirming := false
+var _confirm_action := ""
+
 # 怪異スチル → nightmare_event への引き継ぎ用
 var _pending_nightmare_text: String = ""
 var _pending_damage: int = 0
+var _pending_san_before: int = -1
 
 # DRAGGING / CLICK_TO_PLACE 共通
 var _active_item: ItemData = null
@@ -47,6 +56,7 @@ var _guide_placed_once := false
 var _time_limit: float = 0.0
 var _cursed_cell_interval: float = 15.0  # 呪われたセルが出現する間隔（秒）
 var _cursed_cell_timer: float = 0.0      # 次の呪われたセル出現までの残り時間
+var _curse_hint_shown := false
 
 
 func _ready() -> void:
@@ -61,6 +71,8 @@ func _ready() -> void:
 	pause_button.pressed.connect(_on_pause_pressed)
 	resume_button.pressed.connect(_on_resume_pressed)
 	to_title_button.pressed.connect(_on_to_title_pressed)
+	confirm_yes_button.pressed.connect(_on_confirm_yes)
+	confirm_no_button.pressed.connect(_on_confirm_no)
 
 	item_tray.item_drag_started.connect(_on_tray_drag_started)
 	item_tray.item_click_selected.connect(_on_tray_click_selected)
@@ -122,6 +134,7 @@ func _init_from_game_manager() -> void:
 func _start_timer() -> void:
 	_time_limit = GameManager.get_time_limit()
 	hud.setup_timer(_time_limit)
+	_curse_hint_shown = false
 	# 呪われたセルは時間の半分が経過した頃から15秒ごとに出現
 	_cursed_cell_timer = _cursed_cell_interval
 
@@ -141,7 +154,7 @@ func _on_day_changed(_day: int) -> void:
 
 # ─── 入力処理 ─────────────────────────────────────────────────
 func _input(event: InputEvent) -> void:
-	if _paused:
+	if _paused or _confirming:
 		return
 	match _state:
 		State.DRAGGING:
@@ -151,7 +164,7 @@ func _input(event: InputEvent) -> void:
 
 
 func _process(delta: float) -> void:
-	if _paused:
+	if _paused or _confirming:
 		return  # タイマー・プレビュー更新を止める
 	if _state != State.SEALED:
 		anomaly_director.tick(delta, _current_tension())
@@ -165,6 +178,7 @@ func _process(delta: float) -> void:
 	# タイムダウン（封印中・ゲームオーバー後は動かさない）
 	if _state != State.SEALED and _time_limit > 0.0:
 		var remaining := hud.tick(delta)
+		grid_box.set_time_warning(remaining if remaining <= 3.0 and remaining > 0.0 else -1.0)
 
 		# 呪われたセル: 時間が半分以下になったら定期出現
 		# ストーリーモードでは初の時間制限ステージ（Day 3）を公平に遊ばせるため Day 4 以降のみ
@@ -174,22 +188,28 @@ func _process(delta: float) -> void:
 			grid_box.tick_cursed_warning(delta)
 			_cursed_cell_timer -= delta
 			if _cursed_cell_timer <= 0.0:
-				grid_box.begin_cursed_warning()
+				if grid_box.begin_cursed_warning() and not _curse_hint_shown:
+					_curse_hint_shown = true
+					_show_hint("紫のマスが呪われる――埋めれば防げる")
 				_cursed_cell_timer = _cursed_cell_interval
 
-		# タイムアップ → 強制封印
+		# タイムアップ → 強制封印（確認は挟まない）
 		if remaining <= 0.0:
 			# ドラッグ中のピースは unplaced_items から外れているため、
 			# 先にトレイへ戻してダメージ計算の対象に含める
 			_restore_to_tray()
 			jump_scare.trigger()
-			_on_seal_pressed()
+			_do_seal()
 
 
 func _current_tension() -> float:
-	if _time_limit <= 0.0:
-		return 0.0
-	return clampf((0.6 - hud.get_time_ratio()) / 0.6, 0.0, 1.0)
+	# 時間危機: 残り60%から0に向けて0→1（時間無制限は0）
+	var time_crisis := 0.0
+	if _time_limit > 0.0:
+		time_crisis = clampf((0.6 - hud.get_time_ratio()) / 0.6, 0.0, 1.0)
+	# SAN危機: 30以下から0に向けて0→1（時間無制限Dayでも不穏さが出る）
+	var san_crisis := clampf((30.0 - float(GameManager.san_value)) / 30.0, 0.0, 1.0)
+	return maxf(time_crisis, san_crisis)
 
 
 func _handle_input_dragging(event: InputEvent) -> void:
@@ -263,6 +283,12 @@ func _on_tray_click_selected(item: ItemData, shape: Array[Vector2i]) -> void:
 			_active_shape = item.get_rotated_shape(_active_shape)
 			item_tray.update_item_shape(item, _active_shape)
 			_update_grid_preview_from_mouse()
+		else:
+			# 回転不可ピースは無反応にせず、理由を伝える
+			_show_hint("この証拠品は回転できない")
+			item_tray.nudge_item(item)
+			if OS.get_name() == "Android":
+				Input.vibrate_handheld(20)
 		return
 
 	# 別ピースをタップ → 選択切り替え（前の選択を解除するだけ、トレイから取り出さない）
@@ -360,13 +386,47 @@ func _show_hint(msg: String) -> void:
 	tween.tween_callback(hint_label.hide)
 
 
+# ─── 確認オーバーレイ ────────────────────────────────────────
+func _show_confirm(msg: String, action: String) -> void:
+	_confirm_action = action
+	confirm_label.text = msg
+	_confirming = true
+	confirm_overlay.visible = true
+
+
+func _on_confirm_no() -> void:
+	AudioManager.play_se("enter")
+	_confirming = false
+	_confirm_action = ""
+	confirm_overlay.visible = false
+
+
+func _on_confirm_yes() -> void:
+	var action := _confirm_action
+	_confirming = false
+	_confirm_action = ""
+	confirm_overlay.visible = false
+	AudioManager.play_se("enter")
+	match action:
+		"reset":
+			_do_reset()
+		"seal":
+			_do_seal()  # 封印SEが直後に鳴り、enterを上書きする
+
+
 func _on_reset_pressed() -> void:
+	if _state == State.SEALED or _confirming:
+		return
 	# 全ピース配置済みなら封印を促す
 	if GameManager.unplaced_items.is_empty() and _active_item == null:
 		_show_hint("既に封印できる状態です\n封印ボタンを押してください")
 		return
 
 	AudioManager.play_se("enter")
+	_show_confirm("配置をすべて戻しますか？", "reset")
+
+
+func _do_reset() -> void:
 	anomaly_director.stop_all()
 
 	# 手持ちアイテムを破棄
@@ -395,7 +455,7 @@ func _on_reset_pressed() -> void:
 
 # ─── ポーズ（中断） ──────────────────────────────────────────
 func _on_pause_pressed() -> void:
-	if _state == State.SEALED or _paused:
+	if _state == State.SEALED or _paused or _confirming:
 		return
 	_restore_to_tray()  # 選択・ドラッグ中のピースを戻してから止める
 	AudioManager.play_se("enter")
@@ -418,9 +478,22 @@ func _on_to_title_pressed() -> void:
 
 # ─── 封印（Seal） ────────────────────────────────────────────
 func _on_seal_pressed() -> void:
+	if _state == State.SEALED or _confirming:
+		return
+	# 未収納あり＝SANダメージが出る場合のみ確認を挟む（全収納時は即封印でテンポ維持）
+	if not GameManager.unplaced_items.is_empty():
+		AudioManager.play_se("enter")
+		_show_confirm("未収納の証拠品が %d個。\n封印すると SAN −%d\n本当に封印しますか？"
+				% [GameManager.unplaced_items.size(), _predicted_seal_damage()], "seal")
+		return
+	_do_seal()
+
+
+func _do_seal() -> void:
 	if _state == State.SEALED:
 		return
 	_set_state(State.SEALED)
+	grid_box.set_time_warning(-1.0)
 	anomaly_director.stop_all()
 
 	AudioManager.play_se("seal")
@@ -431,6 +504,7 @@ func _on_seal_pressed() -> void:
 
 	# 未配置アイテムのSANダメージを計算
 	_pending_damage = _predicted_seal_damage()
+	_pending_san_before = GameManager.san_value
 	GameManager.apply_san_damage(_pending_damage)
 	guide_label.visible = false
 
@@ -452,11 +526,11 @@ func _on_seal_pressed() -> void:
 			kaiki_still.show_still(GameManager.current_day)
 			return
 
-	nightmare_event.show_event(_pending_nightmare_text, _pending_damage)
+	nightmare_event.show_event(_pending_nightmare_text, _pending_damage, _pending_san_before)
 
 
 func _on_kaiki_still_dismissed() -> void:
-	nightmare_event.show_event(_pending_nightmare_text, _pending_damage)
+	nightmare_event.show_event(_pending_nightmare_text, _pending_damage, _pending_san_before)
 
 
 func _on_nightmare_dismissed() -> void:

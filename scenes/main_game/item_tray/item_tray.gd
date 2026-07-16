@@ -123,6 +123,19 @@ func deselect_all() -> void:
 			iv.queue_redraw()
 
 
+## 回転不可などの操作エラーを一瞬のグリッチ揺れで伝える
+func nudge_item(item: ItemData) -> void:
+	for entry in _item_entries:
+		if entry["item"] == item:
+			var iv := entry["visual"] as ItemVisual
+			iv.glitch_amount = 0.6
+			# ピースが揺れ中に削除されてもTweenが残らないよう、対象ノードに紐付ける
+			var tween := iv.create_tween()
+			tween.tween_property(iv, "glitch_seed", iv.glitch_seed + 8.0, 0.35)
+			tween.parallel().tween_property(iv, "glitch_amount", 0.0, 0.35)
+			return
+
+
 func _on_item_drag_started(item: ItemData, shape: Array[Vector2i], screen_pos: Vector2) -> void:
 	item_drag_started.emit(item, shape, screen_pos)
 

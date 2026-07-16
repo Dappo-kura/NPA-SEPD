@@ -52,6 +52,7 @@ var _placed_pulse: float = 0.0
 var _dynamic_cursed: Array[Vector2i] = []
 var _cursed_warning_cell: Vector2i = Vector2i(-1, -1)  # 封鎖予告中のセル（なければ -1,-1）
 var _cursed_warning_left: float = 0.0
+var _time_warning_left: float = -1.0
 
 signal item_placed(item: ItemData, origin: Vector2i)
 signal item_rejected()
@@ -73,6 +74,7 @@ func setup(stage: StageData) -> void:
 	_dynamic_cursed.clear()
 	_cursed_warning_cell = Vector2i(-1, -1)
 	_cursed_warning_left = 0.0
+	_time_warning_left = -1.0
 	_preview_clear()
 	_update_size()
 	queue_redraw()
@@ -180,6 +182,11 @@ func place_item(item: ItemData, shape: Array[Vector2i], origin: Vector2i) -> boo
 
 	_preview_clear()
 	pulse_success(item, origin)
+	# 警告中のセルをピースで守った → 警告を即解除して防御パルス
+	if _cursed_warning_cell.x >= 0 and cell_map.has(_cursed_warning_cell):
+		_cursed_warning_cell = Vector2i(-1, -1)
+		_cursed_warning_left = 0.0
+		pulse_defended()
 	item_placed.emit(item, origin)
 	queue_redraw()
 	return true
@@ -202,6 +209,22 @@ func pulse_reject() -> void:
 	_set_board_glow(1.0)
 	var tween := create_tween()
 	tween.tween_method(_set_board_glow, 1.0, 0.0, 0.22).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+
+
+## 呪い封鎖確定の紫パルス（配置ミスの赤と判別する）
+func pulse_cursed() -> void:
+	_board_glow_color = Color(0.62, 0.16, 0.75, 0.50)
+	_set_board_glow(1.0)
+	var tween := create_tween()
+	tween.tween_method(_set_board_glow, 1.0, 0.0, 0.45).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+
+
+## 呪い予告セルを守ったときの防御パルス
+func pulse_defended() -> void:
+	_board_glow_color = Color(0.85, 0.75, 1.0, 0.46)
+	_set_board_glow(1.0)
+	var tween := create_tween()
+	tween.tween_method(_set_board_glow, 1.0, 0.0, 0.35).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 
 
 func _clear_placed_pulse() -> void:
@@ -273,8 +296,16 @@ func _commit_cursed_cell() -> void:
 	if not cell_map.has(cell) and cell not in blocked_cells:
 		blocked_cells.append(cell)
 		_dynamic_cursed.append(cell)
-		pulse_reject()
+		pulse_cursed()
 	queue_redraw()
+
+
+## 残り3秒の最終警告（負の値で解除）。main_game が毎フレーム渡す
+func set_time_warning(remaining: float) -> void:
+	var was_active := _time_warning_left >= 0.0
+	_time_warning_left = remaining
+	if remaining >= 0.0 or was_active:
+		queue_redraw()
 
 
 ## 途中出現した呪いセル（と警告中のセル）を解除する。ステージ定義の封鎖マスは残す
@@ -311,6 +342,7 @@ func _draw() -> void:
 	_draw_preview()
 	_draw_grid_lines()
 	_draw_board_glow()
+	_draw_time_warning()
 
 
 func _draw_background() -> void:
@@ -388,6 +420,11 @@ func _draw_cursed_warning() -> void:
 	var alpha := 0.22 + 0.34 * absf(sin(_cursed_warning_left * TAU))
 	draw_rect(rect, Color(CURSED_WARN_COLOR.r, CURSED_WARN_COLOR.g, CURSED_WARN_COLOR.b, alpha))
 	draw_rect(rect, Color(CURSED_WARN_COLOR.r, CURSED_WARN_COLOR.g, CURSED_WARN_COLOR.b, 0.9), false, 3.0)
+	var count := str(ceili(_cursed_warning_left))
+	var font_size: int = maxi(24, int(float(cell_size) * 0.52))
+	var text_size := ThemeDB.fallback_font.get_string_size(count, HORIZONTAL_ALIGNMENT_CENTER, -1, font_size)
+	var pos := rect.position + Vector2((rect.size.x - text_size.x) * 0.5, (rect.size.y + text_size.y * 0.7) * 0.5)
+	draw_string(ThemeDB.fallback_font, pos, count, HORIZONTAL_ALIGNMENT_CENTER, -1, font_size, Color(1.0, 0.9, 1.0, 0.95))
 
 
 func _draw_preview() -> void:
@@ -432,6 +469,14 @@ func _draw_board_glow() -> void:
 	var glow_color := Color(_board_glow_color.r, _board_glow_color.g, _board_glow_color.b, _board_glow_color.a * _board_glow)
 	var outer := Rect2(Vector2.ZERO, size).grow(-8.0)
 	draw_rect(outer, glow_color, false, 8.0 + 10.0 * _board_glow)
+
+
+func _draw_time_warning() -> void:
+	if _time_warning_left < 0.0:
+		return
+	var outer := Rect2(Vector2.ZERO, size).grow(-6.0)
+	var color := Color(1.0, 0.08, 0.05, 0.30 + 0.45 * absf(sin(_time_warning_left * TAU)))
+	draw_rect(outer, color, false, 10.0)
 
 
 func _cell_rect(cell: Vector2i, inset: float) -> Rect2:

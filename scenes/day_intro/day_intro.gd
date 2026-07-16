@@ -151,17 +151,12 @@ func _process(delta: float) -> void:
 
 
 func _input(event: InputEvent) -> void:
-	var tapped := false
-	if event is InputEventScreenTouch:
-		if (event as InputEventScreenTouch).pressed:
-			tapped = true
-	elif event is InputEventMouseButton:
+	# タッチはエミュレートマウスとして届くため、マウスイベントのみで判定する
+	# （両方を拾うと実機で1タップが二重処理され、テキストが読み飛ばされる）
+	if event is InputEventMouseButton:
 		var mb := event as InputEventMouseButton
 		if mb.button_index == MOUSE_BUTTON_LEFT and mb.pressed:
-			tapped = true
-
-	if tapped:
-		_handle_advance()
+			_handle_advance()
 
 
 func _handle_advance() -> void:

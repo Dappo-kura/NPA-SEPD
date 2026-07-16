@@ -28,6 +28,7 @@ var _elapsed: float = 0.0
 var _text_done: bool = false
 var _blink_time: float = 0.0
 var _san_damage: int = 0
+var _san_before: int = -1
 var _showing_san: bool = false
 
 
@@ -37,8 +38,9 @@ func _ready() -> void:
 	_apply_font()
 
 
-func show_event(nightmare_text: String, san_damage: int) -> void:
+func show_event(nightmare_text: String, san_damage: int, san_before: int = -1) -> void:
 	_san_damage = san_damage
+	_san_before = san_before
 
 	# nightmare_text をVNラインにパース
 	bg_image.texture = null
@@ -140,8 +142,24 @@ func _show_san_result() -> void:
 	_blink_time = 0.0
 
 	if _san_damage > 0:
-		san_label.text = "SAN  −" + str(_san_damage)
-		san_label.add_theme_color_override("font_color", Color(1.0, 0.25, 0.25, 1.0))
+		if _san_before >= 0:
+			san_label.text = "SAN  %d → %d" % [_san_before, GameManager.san_value]
+		else:
+			san_label.text = "SAN  −" + str(_san_damage)
+		if GameManager.san_value > 60:
+			san_label.add_theme_color_override("font_color", Color(1.0, 0.6, 0.3))
+		elif GameManager.san_value > 30:
+			san_label.add_theme_color_override("font_color", Color(1.0, 0.35, 0.25))
+		else:
+			san_label.add_theme_color_override("font_color", Color(1.0, 0.15, 0.15))
+		if GameManager.san_value == 0:
+			var original_position := san_label.position
+			var tween := create_tween().set_loops(6)
+			tween.tween_callback(func() -> void:
+				san_label.position = original_position + Vector2(randf_range(-6, 6), randf_range(-4, 4)))
+			tween.tween_interval(0.05)
+			tween.finished.connect(func() -> void:
+				san_label.position = original_position)
 	else:
 		san_label.text = "SANは無事だ"
 		san_label.add_theme_color_override("font_color", Color(0.4, 1.0, 0.5, 1.0))
@@ -183,17 +201,12 @@ func _process(delta: float) -> void:
 func _input(event: InputEvent) -> void:
 	if not visible:
 		return
-	var tapped := false
-	if event is InputEventScreenTouch:
-		if (event as InputEventScreenTouch).pressed:
-			tapped = true
-	elif event is InputEventMouseButton:
+	# タッチはエミュレートマウスとして届くため、マウスイベントのみで判定する
+	# （両方を拾うと実機で1タップが二重処理され、テキストが読み飛ばされる）
+	if event is InputEventMouseButton:
 		var mb := event as InputEventMouseButton
 		if mb.button_index == MOUSE_BUTTON_LEFT and mb.pressed:
-			tapped = true
-
-	if tapped:
-		_handle_advance()
+			_handle_advance()
 
 
 func _handle_advance() -> void:

@@ -54,10 +54,10 @@ func _populate_gallery() -> void:
 			# タップで全画面表示
 			thumb.gui_input.connect(
 				func(event: InputEvent) -> void:
-					if event is InputEventScreenTouch and event.pressed:
-						_show_fullscreen(tex, title)
-					elif event is InputEventMouseButton and event.pressed:
-						_show_fullscreen(tex, title)
+					if event is InputEventMouseButton:
+						var mb := event as InputEventMouseButton
+						if mb.button_index == MOUSE_BUTTON_LEFT and mb.pressed:
+							_show_fullscreen(tex, title)
 			)
 			thumb.mouse_filter = Control.MOUSE_FILTER_STOP
 		else:
